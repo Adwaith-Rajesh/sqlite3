@@ -1,9 +1,9 @@
 
 /*
 ** This file is the interface to a very simple database library used for
-** testing. The interface is similar to that of the LSM. The main virtue 
+** testing. The interface is similar to that of the LSM. The main virtue
 ** of this library is that the same API may be used to access a key-value
-** store implemented by LSM, SQLite or another database system. Which 
+** store implemented by LSM, SQLite or another database system. Which
 ** makes it easy to use for correctness and performance tests.
 */
 
@@ -63,8 +63,8 @@ int tdb_delete_range(TestDb *, void *pKey1, int nKey1, void *pKey2, int nKey2);
 int tdb_fetch(TestDb *pDb, void *pKey, int nKey, void **ppVal, int *pnVal);
 
 /*
-** Open and close nested transactions. Currently, these functions only 
-** work for SQLite3 and LSM systems. Use the tdb_transaction_support() 
+** Open and close nested transactions. Currently, these functions only
+** work for SQLite3 and LSM systems. Use the tdb_transaction_support()
 ** function to determine if a given TestDb handle supports these methods.
 **
 ** These functions and the iLevel parameter follow the same conventions as
@@ -72,17 +72,17 @@ int tdb_fetch(TestDb *pDb, void *pKey, int nKey, void **ppVal, int *pnVal);
 ** from the way LSM does things. As follows:
 **
 ** tdb_begin():
-**   A successful call to tdb_begin() with (iLevel>1) guarantees that 
+**   A successful call to tdb_begin() with (iLevel>1) guarantees that
 **   there are at least (iLevel-1) write transactions open. If iLevel==1,
 **   then it guarantees that at least a read-transaction is open. Calling
 **   tdb_begin() with iLevel==0 is a no-op.
 **
 ** tdb_commit():
-**   A successful call to tdb_commit() with (iLevel>1) guarantees that 
+**   A successful call to tdb_commit() with (iLevel>1) guarantees that
 **   there are at most (iLevel-1) write transactions open. If iLevel==1,
 **   then it guarantees that there are no write transactions open (although
-**   a read-transaction may remain open).  Calling tdb_commit() with 
-**   iLevel==0 ensures that all transactions, read or write, have been 
+**   a read-transaction may remain open).  Calling tdb_commit() with
+**   iLevel==0 ensures that all transactions, read or write, have been
 **   closed and committed.
 **
 ** tdb_rollback():
@@ -116,13 +116,12 @@ const char *tdb_library_name(TestDb *pDb);
 ** key visited.
 */
 int tdb_scan(
-  TestDb *pDb,                    /* Database handle */
-  void *pCtx,                     /* Context pointer to pass to xCallback */
-  int bReverse,                   /* True to scan in reverse order */
-  void *pKey1, int nKey1,         /* Start of search */
-  void *pKey2, int nKey2,         /* End of search */
-  void (*xCallback)(void *pCtx, void *pKey, int nKey, void *pVal, int nVal)
-);
+    TestDb *pDb,            /* Database handle */
+    void *pCtx,             /* Context pointer to pass to xCallback */
+    int bReverse,           /* True to scan in reverse order */
+    void *pKey1, int nKey1, /* Start of search */
+    void *pKey2, int nKey2, /* End of search */
+    void (*xCallback)(void *pCtx, void *pKey, int nKey, void *pVal, int nVal));
 
 const char *tdb_system_name(int i);
 const char *tdb_default_db(const char *zSys);
@@ -144,7 +143,7 @@ int tdb_lsm_multithread(TestDb *pDb);
 
 /*
 ** Return a pointer to the lsm_env object used by all lsm database
-** connections initialized as a copy of the object returned by 
+** connections initialized as a copy of the object returned by
 ** lsm_default_env(). It may be modified (e.g. to override functions)
 ** if the caller can guarantee that it is not already in use.
 */
@@ -161,14 +160,13 @@ void tdb_lsm_prepare_system_crash(TestDb *pDb);
 void tdb_lsm_system_crash(TestDb *pDb);
 void tdb_lsm_prepare_sync_crash(TestDb *pDb, int iSync);
 
-
 void tdb_lsm_safety(TestDb *pDb, int eMode);
 void tdb_lsm_config_work_hook(TestDb *pDb, void (*)(lsm_db *, void *), void *);
-void tdb_lsm_write_hook(TestDb *, void(*)(void*,int,lsm_i64,int,int), void*);
+void tdb_lsm_write_hook(TestDb *, void (*)(void *, int, lsm_i64, int, int), void *);
 int tdb_lsm_config_str(TestDb *pDb, const char *zStr);
 
 #ifdef __cplusplus
-}  /* End of the 'extern "C"' block */
+} /* End of the 'extern "C"' block */
 #endif
 
 #endif

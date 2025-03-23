@@ -57,11 +57,11 @@
 
 #ifndef deliberate_fall_through
 /* Quiet some compilers about some of our intentional code. */
-# if GCC_VERSION>=7000000
-#  define deliberate_fall_through __attribute__((fallthrough));
-# else
-#  define deliberate_fall_through
-# endif
+#if GCC_VERSION >= 7000000
+#define deliberate_fall_through __attribute__((fallthrough));
+#else
+#define deliberate_fall_through
+#endif
 #endif
 
 SQLITE_EXTENSION_INIT1;
@@ -78,32 +78,30 @@ typedef unsigned char u8;
 
 /* Decoding table, ASCII (7-bit) value to base 64 digit value or other */
 static const u8 b64DigitValues[128] = {
-  /*                             HT LF VT  FF CR       */
-    ND,ND,ND,ND, ND,ND,ND,ND, ND,WS,WS,WS, WS,WS,ND,ND,
-  /*                                                US */
-    ND,ND,ND,ND, ND,ND,ND,ND, ND,ND,ND,ND, ND,ND,ND,ND,
-  /*sp                                  +            / */
-    WS,ND,ND,ND, ND,ND,ND,ND, ND,ND,ND,62, ND,ND,ND,63,
-  /* 0  1            5            9            =       */
-    52,53,54,55, 56,57,58,59, 60,61,ND,ND, ND,PC,ND,ND,
-  /*    A                                            O */
-    ND, 0, 1, 2,  3, 4, 5, 6,  7, 8, 9,10, 11,12,13,14,
-  /* P                               Z                 */
-    15,16,17,18, 19,20,21,22, 23,24,25,ND, ND,ND,ND,ND,
-  /*    a                                            o */
-    ND,26,27,28, 29,30,31,32, 33,34,35,36, 37,38,39,40,
-  /* p                               z                 */
-    41,42,43,44, 45,46,47,48, 49,50,51,ND, ND,ND,ND,ND
-};
+    /*                             HT LF VT  FF CR       */
+    ND, ND, ND, ND, ND, ND, ND, ND, ND, WS, WS, WS, WS, WS, ND, ND,
+    /*                                                US */
+    ND, ND, ND, ND, ND, ND, ND, ND, ND, ND, ND, ND, ND, ND, ND, ND,
+    /*sp                                  +            / */
+    WS, ND, ND, ND, ND, ND, ND, ND, ND, ND, ND, 62, ND, ND, ND, 63,
+    /* 0  1            5            9            =       */
+    52, 53, 54, 55, 56, 57, 58, 59, 60, 61, ND, ND, ND, PC, ND, ND,
+    /*    A                                            O */
+    ND, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
+    /* P                               Z                 */
+    15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, ND, ND, ND, ND, ND,
+    /*    a                                            o */
+    ND, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
+    /* p                               z                 */
+    41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, ND, ND, ND, ND, ND};
 
-static const char b64Numerals[64+1]
-= "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+static const char b64Numerals[64 + 1] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 #define BX_DV_PROTO(c) \
-  ((((u8)(c))<0x80)? (u8)(b64DigitValues[(u8)(c)]) : 0x80)
-#define IS_BX_DIGIT(bdp) (((u8)(bdp))<0x80)
-#define IS_BX_WS(bdp) ((bdp)==WS)
-#define IS_BX_PAD(bdp) ((bdp)==PC)
+    ((((u8)(c)) < 0x80) ? (u8)(b64DigitValues[(u8)(c)]) : 0x80)
+#define IS_BX_DIGIT(bdp) (((u8)(bdp)) < 0x80)
+#define IS_BX_WS(bdp) ((bdp) == WS)
+#define IS_BX_PAD(bdp) ((bdp) == PC)
 #define BX_NUMERAL(dv) (b64Numerals[(u8)(dv)])
 /* Width of base64 lines. Should be an integer multiple of 4. */
 #define B64_DARK_MAX 72
@@ -111,156 +109,156 @@ static const char b64Numerals[64+1]
 /* Encode a byte buffer into base64 text with linefeeds appended to limit
 ** encoded group lengths to B64_DARK_MAX or to terminate the last group.
 */
-static char* toBase64( u8 *pIn, int nbIn, char *pOut ){
-  int nCol = 0;
-  while( nbIn >= 3 ){
-    /* Do the bit-shuffle, exploiting unsigned input to avoid masking. */
-    pOut[0] = BX_NUMERAL(pIn[0]>>2);
-    pOut[1] = BX_NUMERAL(((pIn[0]<<4)|(pIn[1]>>4))&0x3f);
-    pOut[2] = BX_NUMERAL(((pIn[1]&0xf)<<2)|(pIn[2]>>6));
-    pOut[3] = BX_NUMERAL(pIn[2]&0x3f);
-    pOut += 4;
-    nbIn -= 3;
-    pIn += 3;
-    if( (nCol += 4)>=B64_DARK_MAX || nbIn<=0 ){
-      *pOut++ = '\n';
-      nCol = 0;
+static char *toBase64(u8 *pIn, int nbIn, char *pOut) {
+    int nCol = 0;
+    while (nbIn >= 3) {
+        /* Do the bit-shuffle, exploiting unsigned input to avoid masking. */
+        pOut[0] = BX_NUMERAL(pIn[0] >> 2);
+        pOut[1] = BX_NUMERAL(((pIn[0] << 4) | (pIn[1] >> 4)) & 0x3f);
+        pOut[2] = BX_NUMERAL(((pIn[1] & 0xf) << 2) | (pIn[2] >> 6));
+        pOut[3] = BX_NUMERAL(pIn[2] & 0x3f);
+        pOut += 4;
+        nbIn -= 3;
+        pIn += 3;
+        if ((nCol += 4) >= B64_DARK_MAX || nbIn <= 0) {
+            *pOut++ = '\n';
+            nCol = 0;
+        }
     }
-  }
-  if( nbIn > 0 ){
-    signed char nco = nbIn+1;
-    int nbe;
-    unsigned long qv = *pIn++;
-    for( nbe=1; nbe<3; ++nbe ){
-      qv <<= 8;
-      if( nbe<nbIn ) qv |= *pIn++;
+    if (nbIn > 0) {
+        signed char nco = nbIn + 1;
+        int nbe;
+        unsigned long qv = *pIn++;
+        for (nbe = 1; nbe < 3; ++nbe) {
+            qv <<= 8;
+            if (nbe < nbIn) qv |= *pIn++;
+        }
+        for (nbe = 3; nbe >= 0; --nbe) {
+            char ce = (nbe < nco) ? BX_NUMERAL((u8)(qv & 0x3f)) : PAD_CHAR;
+            qv >>= 6;
+            pOut[nbe] = ce;
+        }
+        pOut += 4;
+        *pOut++ = '\n';
     }
-    for( nbe=3; nbe>=0; --nbe ){
-      char ce = (nbe<nco)? BX_NUMERAL((u8)(qv & 0x3f)) : PAD_CHAR;
-      qv >>= 6;
-      pOut[nbe] = ce;
-    }
-    pOut += 4;
-    *pOut++ = '\n';
-  }
-  *pOut = 0;
-  return pOut;
+    *pOut = 0;
+    return pOut;
 }
 
 /* Skip over text which is not base64 numeral(s). */
-static char * skipNonB64( char *s, int nc ){
-  char c;
-  while( nc-- > 0 && (c = *s) && !IS_BX_DIGIT(BX_DV_PROTO(c)) ) ++s;
-  return s;
+static char *skipNonB64(char *s, int nc) {
+    char c;
+    while (nc-- > 0 && (c = *s) && !IS_BX_DIGIT(BX_DV_PROTO(c))) ++s;
+    return s;
 }
 
 /* Decode base64 text into a byte buffer. */
-static u8* fromBase64( char *pIn, int ncIn, u8 *pOut ){
-  if( ncIn>0 && pIn[ncIn-1]=='\n' ) --ncIn;
-  while( ncIn>0 && *pIn!=PAD_CHAR ){
-    static signed char nboi[] = { 0, 0, 1, 2, 3 };
-    char *pUse = skipNonB64(pIn, ncIn);
-    unsigned long qv = 0L;
-    int nti, nbo, nac;
-    ncIn -= (pUse - pIn);
-    pIn = pUse;
-    nti = (ncIn>4)? 4 : ncIn;
-    ncIn -= nti;
-    nbo = nboi[nti];
-    if( nbo==0 ) break;
-    for( nac=0; nac<4; ++nac ){
-      char c = (nac<nti)? *pIn++ : b64Numerals[0];
-      u8 bdp = BX_DV_PROTO(c);
-      switch( bdp ){
-      case ND:
-        /*  Treat dark non-digits as pad, but they terminate decode too. */
-        ncIn = 0;
-        deliberate_fall_through;
-      case WS:
-        /* Treat whitespace as pad and terminate this group.*/
-        nti = nac;
-        deliberate_fall_through;
-      case PC:
-        bdp = 0;
-        --nbo;
-        deliberate_fall_through;
-      default: /* bdp is the digit value. */
-        qv = qv<<6 | bdp;
-        break;
-      }
+static u8 *fromBase64(char *pIn, int ncIn, u8 *pOut) {
+    if (ncIn > 0 && pIn[ncIn - 1] == '\n') --ncIn;
+    while (ncIn > 0 && *pIn != PAD_CHAR) {
+        static signed char nboi[] = {0, 0, 1, 2, 3};
+        char *pUse = skipNonB64(pIn, ncIn);
+        unsigned long qv = 0L;
+        int nti, nbo, nac;
+        ncIn -= (pUse - pIn);
+        pIn = pUse;
+        nti = (ncIn > 4) ? 4 : ncIn;
+        ncIn -= nti;
+        nbo = nboi[nti];
+        if (nbo == 0) break;
+        for (nac = 0; nac < 4; ++nac) {
+            char c = (nac < nti) ? *pIn++ : b64Numerals[0];
+            u8 bdp = BX_DV_PROTO(c);
+            switch (bdp) {
+                case ND:
+                    /*  Treat dark non-digits as pad, but they terminate decode too. */
+                    ncIn = 0;
+                    deliberate_fall_through;
+                case WS:
+                    /* Treat whitespace as pad and terminate this group.*/
+                    nti = nac;
+                    deliberate_fall_through;
+                case PC:
+                    bdp = 0;
+                    --nbo;
+                    deliberate_fall_through;
+                default: /* bdp is the digit value. */
+                    qv = qv << 6 | bdp;
+                    break;
+            }
+        }
+        switch (nbo) {
+            case 3:
+                pOut[2] = (qv) & 0xff;
+            case 2:
+                pOut[1] = (qv >> 8) & 0xff;
+            case 1:
+                pOut[0] = (qv >> 16) & 0xff;
+        }
+        pOut += nbo;
     }
-    switch( nbo ){
-    case 3:
-      pOut[2] = (qv) & 0xff;
-    case 2:
-      pOut[1] = (qv>>8) & 0xff;
-    case 1:
-      pOut[0] = (qv>>16) & 0xff;
-    }
-    pOut += nbo;
-  }
-  return pOut;
+    return pOut;
 }
 
 /* This function does the work for the SQLite base64(x) UDF. */
-static void base64(sqlite3_context *context, int na, sqlite3_value *av[]){
-  int nb, nc, nv = sqlite3_value_bytes(av[0]);
-  int nvMax = sqlite3_limit(sqlite3_context_db_handle(context),
-                            SQLITE_LIMIT_LENGTH, -1);
-  char *cBuf;
-  u8 *bBuf;
-  assert(na==1);
-  switch( sqlite3_value_type(av[0]) ){
-  case SQLITE_BLOB:
-    nb = nv;
-    nc = 4*(nv+2/3); /* quads needed */
-    nc += (nc+(B64_DARK_MAX-1))/B64_DARK_MAX + 1; /* LFs and a 0-terminator */
-    if( nvMax < nc ){
-      sqlite3_result_error(context, "blob expanded to base64 too big", -1);
-      return;
+static void base64(sqlite3_context *context, int na, sqlite3_value *av[]) {
+    int nb, nc, nv = sqlite3_value_bytes(av[0]);
+    int nvMax = sqlite3_limit(sqlite3_context_db_handle(context),
+                              SQLITE_LIMIT_LENGTH, -1);
+    char *cBuf;
+    u8 *bBuf;
+    assert(na == 1);
+    switch (sqlite3_value_type(av[0])) {
+        case SQLITE_BLOB:
+            nb = nv;
+            nc = 4 * (nv + 2 / 3);                              /* quads needed */
+            nc += (nc + (B64_DARK_MAX - 1)) / B64_DARK_MAX + 1; /* LFs and a 0-terminator */
+            if (nvMax < nc) {
+                sqlite3_result_error(context, "blob expanded to base64 too big", -1);
+                return;
+            }
+            bBuf = (u8 *)sqlite3_value_blob(av[0]);
+            if (!bBuf) {
+                if (SQLITE_NOMEM == sqlite3_errcode(sqlite3_context_db_handle(context))) {
+                    goto memFail;
+                }
+                sqlite3_result_text(context, "", -1, SQLITE_STATIC);
+                break;
+            }
+            cBuf = sqlite3_malloc(nc);
+            if (!cBuf) goto memFail;
+            nc = (int)(toBase64(bBuf, nb, cBuf) - cBuf);
+            sqlite3_result_text(context, cBuf, nc, sqlite3_free);
+            break;
+        case SQLITE_TEXT:
+            nc = nv;
+            nb = 3 * ((nv + 3) / 4); /* may overestimate due to LF and padding */
+            if (nvMax < nb) {
+                sqlite3_result_error(context, "blob from base64 may be too big", -1);
+                return;
+            } else if (nb < 1) {
+                nb = 1;
+            }
+            cBuf = (char *)sqlite3_value_text(av[0]);
+            if (!cBuf) {
+                if (SQLITE_NOMEM == sqlite3_errcode(sqlite3_context_db_handle(context))) {
+                    goto memFail;
+                }
+                sqlite3_result_zeroblob(context, 0);
+                break;
+            }
+            bBuf = sqlite3_malloc(nb);
+            if (!bBuf) goto memFail;
+            nb = (int)(fromBase64(cBuf, nc, bBuf) - bBuf);
+            sqlite3_result_blob(context, bBuf, nb, sqlite3_free);
+            break;
+        default:
+            sqlite3_result_error(context, "base64 accepts only blob or text", -1);
+            return;
     }
-    bBuf = (u8*)sqlite3_value_blob(av[0]);
-    if( !bBuf ){
-      if( SQLITE_NOMEM==sqlite3_errcode(sqlite3_context_db_handle(context)) ){
-        goto memFail;
-      }
-      sqlite3_result_text(context,"",-1,SQLITE_STATIC);
-      break;
-    }
-    cBuf = sqlite3_malloc(nc);
-    if( !cBuf ) goto memFail;
-    nc = (int)(toBase64(bBuf, nb, cBuf) - cBuf);
-    sqlite3_result_text(context, cBuf, nc, sqlite3_free);
-    break;
-  case SQLITE_TEXT:
-    nc = nv;
-    nb = 3*((nv+3)/4); /* may overestimate due to LF and padding */
-    if( nvMax < nb ){
-      sqlite3_result_error(context, "blob from base64 may be too big", -1);
-      return;
-    }else if( nb<1 ){
-      nb = 1;
-    }
-    cBuf = (char *)sqlite3_value_text(av[0]);
-    if( !cBuf ){
-      if( SQLITE_NOMEM==sqlite3_errcode(sqlite3_context_db_handle(context)) ){
-        goto memFail;
-      }
-      sqlite3_result_zeroblob(context, 0);
-      break;
-    }
-    bBuf = sqlite3_malloc(nb);
-    if( !bBuf ) goto memFail;
-    nb = (int)(fromBase64(cBuf, nc, bBuf) - bBuf);
-    sqlite3_result_blob(context, bBuf, nb, sqlite3_free);
-    break;
-  default:
-    sqlite3_result_error(context, "base64 accepts only blob or text", -1);
     return;
-  }
-  return;
- memFail:
-  sqlite3_result_error(context, "base64 OOM", -1);
+memFail:
+    sqlite3_result_error(context, "base64 OOM", -1);
 }
 
 /*
@@ -270,17 +268,17 @@ static void base64(sqlite3_context *context, int na, sqlite3_value *av[]){
 #ifdef _WIN32
 __declspec(dllexport)
 #endif
-int sqlite3_base_init
+int
+sqlite3_base_init
 #else
 static int sqlite3_base64_init
 #endif
-(sqlite3 *db, char **pzErr, const sqlite3_api_routines *pApi){
-  SQLITE_EXTENSION_INIT2(pApi);
-  (void)pzErr;
-  return sqlite3_create_function
-    (db, "base64", 1,
-     SQLITE_DETERMINISTIC|SQLITE_INNOCUOUS|SQLITE_DIRECTONLY|SQLITE_UTF8,
-     0, base64, 0, 0);
+    (sqlite3 *db, char **pzErr, const sqlite3_api_routines *pApi) {
+    SQLITE_EXTENSION_INIT2(pApi);
+    (void)pzErr;
+    return sqlite3_create_function(db, "base64", 1,
+                                   SQLITE_DETERMINISTIC | SQLITE_INNOCUOUS | SQLITE_DIRECTONLY | SQLITE_UTF8,
+                                   0, base64, 0, 0);
 }
 
 /*

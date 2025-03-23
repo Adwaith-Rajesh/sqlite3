@@ -30,23 +30,25 @@
 */
 
 #ifndef SQLITE_INTERNAL_LINKAGE
-# define SQLITE_INTERNAL_LINKAGE extern /* external to translation unit */
-# include <stdio.h>
+#define SQLITE_INTERNAL_LINKAGE extern /* external to translation unit */
+#include <stdio.h>
 #else
-# define SHELL_NO_SYSINC /* Better yet, modify mkshellc.tcl for this. */
+#define SHELL_NO_SYSINC /* Better yet, modify mkshellc.tcl for this. */
 #endif
 
 #ifndef SQLITE3_H
-# include "sqlite3.h"
+#include "sqlite3.h"
 #endif
 
 #ifndef SQLITE_CIO_NO_CLASSIFY
 
 /* Define enum for use with following function. */
 typedef enum StreamsAreConsole {
-  SAC_NoConsole = 0,
-  SAC_InConsole = 1, SAC_OutConsole = 2, SAC_ErrConsole = 4,
-  SAC_AnyConsole = 0x7
+    SAC_NoConsole = 0,
+    SAC_InConsole = 1,
+    SAC_OutConsole = 2,
+    SAC_ErrConsole = 4,
+    SAC_AnyConsole = 0x7
 } StreamsAreConsole;
 
 /*
@@ -67,9 +69,9 @@ typedef enum StreamsAreConsole {
 ** "Setup") may be made which is undone by consoleRestore().
 */
 SQLITE_INTERNAL_LINKAGE StreamsAreConsole
-consoleClassifySetup( FILE *pfIn, FILE *pfOut, FILE *pfErr );
+consoleClassifySetup(FILE *pfIn, FILE *pfOut, FILE *pfErr);
 /* A usual call for convenience: */
-#define SQLITE_STD_CONSOLE_INIT() consoleClassifySetup(stdin,stdout,stderr)
+#define SQLITE_STD_CONSOLE_INIT() consoleClassifySetup(stdin, stdout, stderr)
 
 /*
 ** After an initial call to consoleClassifySetup(...), renew
@@ -96,12 +98,12 @@ SQLITE_INTERNAL_LINKAGE void consoleRenewSetup(void);
 ** before so that said process will have a console setup
 ** however users have configured it or come to expect.
 */
-SQLITE_INTERNAL_LINKAGE void SQLITE_CDECL consoleRestore( void );
+SQLITE_INTERNAL_LINKAGE void SQLITE_CDECL consoleRestore(void);
 
 #else /* defined(SQLITE_CIO_NO_CLASSIFY) */
-# define consoleClassifySetup(i,o,e)
-# define consoleRenewSetup()
-# define consoleRestore()
+#define consoleClassifySetup(i, o, e)
+#define consoleRenewSetup()
+#define consoleRestore()
 #endif /* defined(SQLITE_CIO_NO_CLASSIFY) */
 
 #ifndef SQLITE_CIO_NO_REDIRECT
@@ -122,12 +124,12 @@ SQLITE_INTERNAL_LINKAGE void SQLITE_CDECL consoleRestore( void );
 */
 SQLITE_INTERNAL_LINKAGE FILE *invalidFileStream;
 SQLITE_INTERNAL_LINKAGE FILE *setOutputStream(FILE *pf);
-# ifdef CONSIO_SET_ERROR_STREAM
+#ifdef CONSIO_SET_ERROR_STREAM
 SQLITE_INTERNAL_LINKAGE FILE *setErrorStream(FILE *pf);
-# endif
+#endif
 #else
-# define setOutputStream(pf)
-# define setErrorStream(pf)
+#define setOutputStream(pf)
+#define setErrorStream(pf)
 #endif /* !defined(SQLITE_CIO_NO_REDIRECT) */
 
 #ifndef SQLITE_CIO_NO_TRANSLATE
@@ -183,7 +185,7 @@ ePutbUtf8(const char *cBuf, int nAccept);
 ** translation may be done as set by set{Binary,Text}Mode(). As a
 ** convenience, pfIn==NULL is treated as stdin.
 */
-SQLITE_INTERNAL_LINKAGE char* fGetsUtf8(char *cBuf, int ncMax, FILE *pfIn);
+SQLITE_INTERNAL_LINKAGE char *fGetsUtf8(char *cBuf, int ncMax, FILE *pfIn);
 /* Like fGetsUtf8 except stream is always the designated input. */
 /* SQLITE_INTERNAL_LINKAGE char* iGetsUtf8(char *cBuf, int ncMax); */
 
@@ -209,8 +211,8 @@ SQLITE_INTERNAL_LINKAGE void setTextMode(FILE *, short bFlush);
 
 #ifdef SQLITE_CIO_PROMPTED_IN
 typedef struct Prompts {
-  int numPrompts;
-  const char **azPrompts;
+    int numPrompts;
+    const char **azPrompts;
 } Prompts;
 
 /*
@@ -267,14 +269,14 @@ shellGetLine(FILE *pfIn, char *zBufPrior, int nLen,
 ** in a way that interferes with the above functionality.
 */
 
-#if !(defined(SQLITE_CIO_NO_UTF8SCAN)&&defined(SQLITE_CIO_NO_TRANSLATE))
+#if !(defined(SQLITE_CIO_NO_UTF8SCAN) && defined(SQLITE_CIO_NO_TRANSLATE))
 /* Skip over as much z[] input char sequence as is valid UTF-8,
 ** limited per nAccept char's or whole characters and containing
 ** no char cn such that ((1<<cn) & ccm)!=0. On return, the
 ** sequence z:return (inclusive:exclusive) is validated UTF-8.
 ** Limit: nAccept>=0 => char count, nAccept<0 => character
- */
-SQLITE_INTERNAL_LINKAGE const char*
+*/
+SQLITE_INTERNAL_LINKAGE const char *
 zSkipValidUtf8(const char *z, int nAccept, long ccm);
 
 #endif

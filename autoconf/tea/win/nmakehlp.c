@@ -15,11 +15,11 @@
 #define _CRT_SECURE_NO_DEPRECATE
 #include <windows.h>
 #ifdef _MSC_VER
-#pragma comment (lib, "user32.lib")
-#pragma comment (lib, "kernel32.lib")
+#pragma comment(lib, "user32.lib")
+#pragma comment(lib, "kernel32.lib")
 #endif
-#include <stdio.h>
 #include <math.h>
+#include <stdio.h>
 
 /*
  * This library is required for x64 builds with _some_ versions of MSVC
@@ -32,9 +32,8 @@
 
 /* ISO hack for dumb VC++ */
 #ifdef _MSC_VER
-#define   snprintf	_snprintf
+#define snprintf _snprintf
 #endif
-
 
 /* protos */
 
@@ -49,8 +48,8 @@ static DWORD WINAPI ReadFromPipe(LPVOID args);
 
 /* globals */
 
-#define CHUNK	25
-#define STATICBUFFERSIZE    1000
+#define CHUNK 25
+#define STATICBUFFERSIZE 1000
 typedef struct {
     HANDLE pipe;
     char buffer[STATICBUFFERSIZE];
@@ -58,16 +57,14 @@ typedef struct {
 
 pipeinfo Out = {INVALID_HANDLE_VALUE, ""};
 pipeinfo Err = {INVALID_HANDLE_VALUE, ""};
-
+
 /*
  * exitcodes: 0 == no, 1 == yes, 2 == error
  */
 
-int
-main(
+int main(
     int argc,
-    char *argv[])
-{
+    char *argv[]) {
     char msg[300];
     DWORD dwWritten;
     int chars;
@@ -87,115 +84,119 @@ main(
     SetEnvironmentVariable("LINK", "");
 
     if (argc > 1 && *argv[1] == '-') {
-	switch (*(argv[1]+1)) {
-	case 'c':
-	    if (argc != 3) {
-		chars = snprintf(msg, sizeof(msg) - 1,
-		        "usage: %s -c <compiler option>\n"
-			"Tests for whether cl.exe supports an option\n"
-			"exitcodes: 0 == no, 1 == yes, 2 == error\n", argv[0]);
-		WriteFile(GetStdHandle(STD_ERROR_HANDLE), msg, chars,
-			&dwWritten, NULL);
-		return 2;
-	    }
-	    return CheckForCompilerFeature(argv[2]);
-	case 'l':
-	    if (argc < 3) {
-		chars = snprintf(msg, sizeof(msg) - 1,
-	       		"usage: %s -l <linker option> ?<mandatory option> ...?\n"
-			"Tests for whether link.exe supports an option\n"
-			"exitcodes: 0 == no, 1 == yes, 2 == error\n", argv[0]);
-		WriteFile(GetStdHandle(STD_ERROR_HANDLE), msg, chars,
-			&dwWritten, NULL);
-		return 2;
-	    }
-	    return CheckForLinkerFeature(&argv[2], argc-2);
-	case 'f':
-	    if (argc == 2) {
-		chars = snprintf(msg, sizeof(msg) - 1,
-			"usage: %s -f <string> <substring>\n"
-			"Find a substring within another\n"
-			"exitcodes: 0 == no, 1 == yes, 2 == error\n", argv[0]);
-		WriteFile(GetStdHandle(STD_ERROR_HANDLE), msg, chars,
-			&dwWritten, NULL);
-		return 2;
-	    } else if (argc == 3) {
-		/*
-		 * If the string is blank, there is no match.
-		 */
+        switch (*(argv[1] + 1)) {
+            case 'c':
+                if (argc != 3) {
+                    chars = snprintf(msg, sizeof(msg) - 1,
+                                     "usage: %s -c <compiler option>\n"
+                                     "Tests for whether cl.exe supports an option\n"
+                                     "exitcodes: 0 == no, 1 == yes, 2 == error\n",
+                                     argv[0]);
+                    WriteFile(GetStdHandle(STD_ERROR_HANDLE), msg, chars,
+                              &dwWritten, NULL);
+                    return 2;
+                }
+                return CheckForCompilerFeature(argv[2]);
+            case 'l':
+                if (argc < 3) {
+                    chars = snprintf(msg, sizeof(msg) - 1,
+                                     "usage: %s -l <linker option> ?<mandatory option> ...?\n"
+                                     "Tests for whether link.exe supports an option\n"
+                                     "exitcodes: 0 == no, 1 == yes, 2 == error\n",
+                                     argv[0]);
+                    WriteFile(GetStdHandle(STD_ERROR_HANDLE), msg, chars,
+                              &dwWritten, NULL);
+                    return 2;
+                }
+                return CheckForLinkerFeature(&argv[2], argc - 2);
+            case 'f':
+                if (argc == 2) {
+                    chars = snprintf(msg, sizeof(msg) - 1,
+                                     "usage: %s -f <string> <substring>\n"
+                                     "Find a substring within another\n"
+                                     "exitcodes: 0 == no, 1 == yes, 2 == error\n",
+                                     argv[0]);
+                    WriteFile(GetStdHandle(STD_ERROR_HANDLE), msg, chars,
+                              &dwWritten, NULL);
+                    return 2;
+                } else if (argc == 3) {
+                    /*
+                     * If the string is blank, there is no match.
+                     */
 
-		return 0;
-	    } else {
-		return IsIn(argv[2], argv[3]);
-	    }
-	case 's':
-	    if (argc == 2) {
-		chars = snprintf(msg, sizeof(msg) - 1,
-			"usage: %s -s <substitutions file> <file>\n"
-			"Perform a set of string map type substutitions on a file\n"
-			"exitcodes: 0\n",
-			argv[0]);
-		WriteFile(GetStdHandle(STD_ERROR_HANDLE), msg, chars,
-			&dwWritten, NULL);
-		return 2;
-	    }
-	    return SubstituteFile(argv[2], argv[3]);
-	case 'V':
-	    if (argc != 4) {
-		chars = snprintf(msg, sizeof(msg) - 1,
-		    "usage: %s -V filename matchstring\n"
-		    "Extract a version from a file:\n"
-		    "eg: pkgIndex.tcl \"package ifneeded http\"",
-		    argv[0]);
-		WriteFile(GetStdHandle(STD_ERROR_HANDLE), msg, chars,
-		    &dwWritten, NULL);
-		return 0;
-	    }
-	    s = GetVersionFromFile(argv[2], argv[3], *(argv[1]+2) - '0');
-	    if (s && *s) {
-		printf("%s\n", s);
-		return 0;
-	    } else
-		return 1; /* Version not found. Return non-0 exit code */
+                    return 0;
+                } else {
+                    return IsIn(argv[2], argv[3]);
+                }
+            case 's':
+                if (argc == 2) {
+                    chars = snprintf(msg, sizeof(msg) - 1,
+                                     "usage: %s -s <substitutions file> <file>\n"
+                                     "Perform a set of string map type substutitions on a file\n"
+                                     "exitcodes: 0\n",
+                                     argv[0]);
+                    WriteFile(GetStdHandle(STD_ERROR_HANDLE), msg, chars,
+                              &dwWritten, NULL);
+                    return 2;
+                }
+                return SubstituteFile(argv[2], argv[3]);
+            case 'V':
+                if (argc != 4) {
+                    chars = snprintf(msg, sizeof(msg) - 1,
+                                     "usage: %s -V filename matchstring\n"
+                                     "Extract a version from a file:\n"
+                                     "eg: pkgIndex.tcl \"package ifneeded http\"",
+                                     argv[0]);
+                    WriteFile(GetStdHandle(STD_ERROR_HANDLE), msg, chars,
+                              &dwWritten, NULL);
+                    return 0;
+                }
+                s = GetVersionFromFile(argv[2], argv[3], *(argv[1] + 2) - '0');
+                if (s && *s) {
+                    printf("%s\n", s);
+                    return 0;
+                } else
+                    return 1; /* Version not found. Return non-0 exit code */
 
-	case 'Q':
-	    if (argc != 3) {
-		chars = snprintf(msg, sizeof(msg) - 1,
-		    "usage: %s -Q path\n"
-		    "Emit the fully qualified path\n"
-		    "exitcodes: 0 == no, 1 == yes, 2 == error\n", argv[0]);
-		WriteFile(GetStdHandle(STD_ERROR_HANDLE), msg, chars,
-		    &dwWritten, NULL);
-		return 2;
-	    }
-	    return QualifyPath(argv[2]);
+            case 'Q':
+                if (argc != 3) {
+                    chars = snprintf(msg, sizeof(msg) - 1,
+                                     "usage: %s -Q path\n"
+                                     "Emit the fully qualified path\n"
+                                     "exitcodes: 0 == no, 1 == yes, 2 == error\n",
+                                     argv[0]);
+                    WriteFile(GetStdHandle(STD_ERROR_HANDLE), msg, chars,
+                              &dwWritten, NULL);
+                    return 2;
+                }
+                return QualifyPath(argv[2]);
 
-	case 'L':
-	    if (argc != 3) {
-		chars = snprintf(msg, sizeof(msg) - 1,
-		    "usage: %s -L keypath\n"
-		    "Emit the fully qualified path of directory containing keypath\n"
-		    "exitcodes: 0 == success, 1 == not found, 2 == error\n", argv[0]);
-		WriteFile(GetStdHandle(STD_ERROR_HANDLE), msg, chars,
-		    &dwWritten, NULL);
-		return 2;
-	    }
-	    return LocateDependency(argv[2]);
-	}
+            case 'L':
+                if (argc != 3) {
+                    chars = snprintf(msg, sizeof(msg) - 1,
+                                     "usage: %s -L keypath\n"
+                                     "Emit the fully qualified path of directory containing keypath\n"
+                                     "exitcodes: 0 == success, 1 == not found, 2 == error\n",
+                                     argv[0]);
+                    WriteFile(GetStdHandle(STD_ERROR_HANDLE), msg, chars,
+                              &dwWritten, NULL);
+                    return 2;
+                }
+                return LocateDependency(argv[2]);
+        }
     }
     chars = snprintf(msg, sizeof(msg) - 1,
-	    "usage: %s -c|-f|-l|-Q|-s|-V ...\n"
-	    "This is a little helper app to equalize shell differences between WinNT and\n"
-	    "Win9x and get nmake.exe to accomplish its job.\n",
-	    argv[0]);
+                     "usage: %s -c|-f|-l|-Q|-s|-V ...\n"
+                     "This is a little helper app to equalize shell differences between WinNT and\n"
+                     "Win9x and get nmake.exe to accomplish its job.\n",
+                     argv[0]);
     WriteFile(GetStdHandle(STD_ERROR_HANDLE), msg, chars, &dwWritten, NULL);
     return 2;
 }
-
+
 static int
 CheckForCompilerFeature(
-    const char *option)
-{
+    const char *option) {
     STARTUPINFO si;
     PROCESS_INFORMATION pi;
     SECURITY_ATTRIBUTES sa;
@@ -210,7 +211,7 @@ CheckForCompilerFeature(
     ZeroMemory(&pi, sizeof(PROCESS_INFORMATION));
     ZeroMemory(&si, sizeof(STARTUPINFO));
     si.cb = sizeof(STARTUPINFO);
-    si.dwFlags   = STARTF_USESTDHANDLES;
+    si.dwFlags = STARTF_USESTDHANDLES;
     si.hStdInput = INVALID_HANDLE_VALUE;
 
     ZeroMemory(&sa, sizeof(SECURITY_ATTRIBUTES));
@@ -229,7 +230,7 @@ CheckForCompilerFeature(
      */
 
     DuplicateHandle(hProcess, h, hProcess, &si.hStdOutput, 0, TRUE,
-	    DUPLICATE_SAME_ACCESS | DUPLICATE_CLOSE_SOURCE);
+                    DUPLICATE_SAME_ACCESS | DUPLICATE_CLOSE_SOURCE);
 
     /*
      * Same as above, but for the error side.
@@ -237,7 +238,7 @@ CheckForCompilerFeature(
 
     CreatePipe(&Err.pipe, &h, &sa, 0);
     DuplicateHandle(hProcess, h, hProcess, &si.hStdError, 0, TRUE,
-	    DUPLICATE_SAME_ACCESS | DUPLICATE_CLOSE_SOURCE);
+                    DUPLICATE_SAME_ACCESS | DUPLICATE_CLOSE_SOURCE);
 
     /*
      * Base command line.
@@ -258,27 +259,28 @@ CheckForCompilerFeature(
     lstrcat(cmdline, " .\\nul");
 
     ok = CreateProcess(
-	    NULL,	    /* Module name. */
-	    cmdline,	    /* Command line. */
-	    NULL,	    /* Process handle not inheritable. */
-	    NULL,	    /* Thread handle not inheritable. */
-	    TRUE,	    /* yes, inherit handles. */
-	    DETACHED_PROCESS, /* No console for you. */
-	    NULL,	    /* Use parent's environment block. */
-	    NULL,	    /* Use parent's starting directory. */
-	    &si,	    /* Pointer to STARTUPINFO structure. */
-	    &pi);	    /* Pointer to PROCESS_INFORMATION structure. */
+        NULL,             /* Module name. */
+        cmdline,          /* Command line. */
+        NULL,             /* Process handle not inheritable. */
+        NULL,             /* Thread handle not inheritable. */
+        TRUE,             /* yes, inherit handles. */
+        DETACHED_PROCESS, /* No console for you. */
+        NULL,             /* Use parent's environment block. */
+        NULL,             /* Use parent's starting directory. */
+        &si,              /* Pointer to STARTUPINFO structure. */
+        &pi);             /* Pointer to PROCESS_INFORMATION structure. */
 
     if (!ok) {
-	DWORD err = GetLastError();
-	int chars = snprintf(msg, sizeof(msg) - 1,
-		"Tried to launch: \"%s\", but got error [%u]: ", cmdline, err);
+        DWORD err = GetLastError();
+        int chars = snprintf(msg, sizeof(msg) - 1,
+                             "Tried to launch: \"%s\", but got error [%u]: ", cmdline, err);
 
-	FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS|
-		FORMAT_MESSAGE_MAX_WIDTH_MASK, 0L, err, 0, (LPSTR)&msg[chars],
-		(300-chars), 0);
-	WriteFile(GetStdHandle(STD_ERROR_HANDLE), msg, lstrlen(msg), &err,NULL);
-	return 2;
+        FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS |
+                          FORMAT_MESSAGE_MAX_WIDTH_MASK,
+                      0L, err, 0, (LPSTR)&msg[chars],
+                      (300 - chars), 0);
+        WriteFile(GetStdHandle(STD_ERROR_HANDLE), msg, lstrlen(msg), &err, NULL);
+        return 2;
     }
 
     /*
@@ -318,19 +320,13 @@ CheckForCompilerFeature(
      *  - in MSVC 6 & 7 we get D4002, in MSVC 8 we get D9002.
      */
 
-    return !(strstr(Out.buffer, "D4002") != NULL
-             || strstr(Err.buffer, "D4002") != NULL
-             || strstr(Out.buffer, "D9002") != NULL
-             || strstr(Err.buffer, "D9002") != NULL
-             || strstr(Out.buffer, "D2021") != NULL
-             || strstr(Err.buffer, "D2021") != NULL);
+    return !(strstr(Out.buffer, "D4002") != NULL || strstr(Err.buffer, "D4002") != NULL || strstr(Out.buffer, "D9002") != NULL || strstr(Err.buffer, "D9002") != NULL || strstr(Out.buffer, "D2021") != NULL || strstr(Err.buffer, "D2021") != NULL);
 }
-
+
 static int
 CheckForLinkerFeature(
     char **options,
-    int count)
-{
+    int count) {
     STARTUPINFO si;
     PROCESS_INFORMATION pi;
     SECURITY_ATTRIBUTES sa;
@@ -346,7 +342,7 @@ CheckForLinkerFeature(
     ZeroMemory(&pi, sizeof(PROCESS_INFORMATION));
     ZeroMemory(&si, sizeof(STARTUPINFO));
     si.cb = sizeof(STARTUPINFO);
-    si.dwFlags   = STARTF_USESTDHANDLES;
+    si.dwFlags = STARTF_USESTDHANDLES;
     si.hStdInput = INVALID_HANDLE_VALUE;
 
     ZeroMemory(&sa, sizeof(SECURITY_ATTRIBUTES));
@@ -365,7 +361,7 @@ CheckForLinkerFeature(
      */
 
     DuplicateHandle(hProcess, h, hProcess, &si.hStdOutput, 0, TRUE,
-	    DUPLICATE_SAME_ACCESS | DUPLICATE_CLOSE_SOURCE);
+                    DUPLICATE_SAME_ACCESS | DUPLICATE_CLOSE_SOURCE);
 
     /*
      * Same as above, but for the error side.
@@ -373,7 +369,7 @@ CheckForLinkerFeature(
 
     CreatePipe(&Err.pipe, &h, &sa, 0);
     DuplicateHandle(hProcess, h, hProcess, &si.hStdError, 0, TRUE,
-	    DUPLICATE_SAME_ACCESS | DUPLICATE_CLOSE_SOURCE);
+                    DUPLICATE_SAME_ACCESS | DUPLICATE_CLOSE_SOURCE);
 
     /*
      * Base command line.
@@ -386,33 +382,34 @@ CheckForLinkerFeature(
      */
 
     for (i = 0; i < count; i++) {
-	lstrcat(cmdline, " \"");
-	lstrcat(cmdline, options[i]);
-	lstrcat(cmdline, "\"");
+        lstrcat(cmdline, " \"");
+        lstrcat(cmdline, options[i]);
+        lstrcat(cmdline, "\"");
     }
 
     ok = CreateProcess(
-	    NULL,	    /* Module name. */
-	    cmdline,	    /* Command line. */
-	    NULL,	    /* Process handle not inheritable. */
-	    NULL,	    /* Thread handle not inheritable. */
-	    TRUE,	    /* yes, inherit handles. */
-	    DETACHED_PROCESS, /* No console for you. */
-	    NULL,	    /* Use parent's environment block. */
-	    NULL,	    /* Use parent's starting directory. */
-	    &si,	    /* Pointer to STARTUPINFO structure. */
-	    &pi);	    /* Pointer to PROCESS_INFORMATION structure. */
+        NULL,             /* Module name. */
+        cmdline,          /* Command line. */
+        NULL,             /* Process handle not inheritable. */
+        NULL,             /* Thread handle not inheritable. */
+        TRUE,             /* yes, inherit handles. */
+        DETACHED_PROCESS, /* No console for you. */
+        NULL,             /* Use parent's environment block. */
+        NULL,             /* Use parent's starting directory. */
+        &si,              /* Pointer to STARTUPINFO structure. */
+        &pi);             /* Pointer to PROCESS_INFORMATION structure. */
 
     if (!ok) {
-	DWORD err = GetLastError();
-	int chars = snprintf(msg, sizeof(msg) - 1,
-		"Tried to launch: \"%s\", but got error [%u]: ", cmdline, err);
+        DWORD err = GetLastError();
+        int chars = snprintf(msg, sizeof(msg) - 1,
+                             "Tried to launch: \"%s\", but got error [%u]: ", cmdline, err);
 
-	FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS|
-		FORMAT_MESSAGE_MAX_WIDTH_MASK, 0L, err, 0, (LPSTR)&msg[chars],
-		(300-chars), 0);
-	WriteFile(GetStdHandle(STD_ERROR_HANDLE), msg, lstrlen(msg), &err,NULL);
-	return 2;
+        FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS |
+                          FORMAT_MESSAGE_MAX_WIDTH_MASK,
+                      0L, err, 0, (LPSTR)&msg[chars],
+                      (300 - chars), 0);
+        WriteFile(GetStdHandle(STD_ERROR_HANDLE), msg, lstrlen(msg), &err, NULL);
+        return 2;
     }
 
     /*
@@ -452,46 +449,44 @@ CheckForLinkerFeature(
      */
 
     return !(strstr(Out.buffer, "LNK1117") != NULL ||
-	    strstr(Err.buffer, "LNK1117") != NULL ||
-	    strstr(Out.buffer, "LNK4044") != NULL ||
-	    strstr(Err.buffer, "LNK4044") != NULL ||
-	    strstr(Out.buffer, "LNK4224") != NULL ||
-	    strstr(Err.buffer, "LNK4224") != NULL);
+             strstr(Err.buffer, "LNK1117") != NULL ||
+             strstr(Out.buffer, "LNK4044") != NULL ||
+             strstr(Err.buffer, "LNK4044") != NULL ||
+             strstr(Out.buffer, "LNK4224") != NULL ||
+             strstr(Err.buffer, "LNK4224") != NULL);
 }
-
+
 static DWORD WINAPI
 ReadFromPipe(
-    LPVOID args)
-{
-    pipeinfo *pi = (pipeinfo *) args;
+    LPVOID args) {
+    pipeinfo *pi = (pipeinfo *)args;
     char *lastBuf = pi->buffer;
     DWORD dwRead;
     BOOL ok;
 
-  again:
+again:
     if (lastBuf - pi->buffer + CHUNK > STATICBUFFERSIZE) {
-	CloseHandle(pi->pipe);
-	return (DWORD)-1;
+        CloseHandle(pi->pipe);
+        return (DWORD)-1;
     }
     ok = ReadFile(pi->pipe, lastBuf, CHUNK, &dwRead, 0L);
     if (!ok || dwRead == 0) {
-	CloseHandle(pi->pipe);
-	return 0;
+        CloseHandle(pi->pipe);
+        return 0;
     }
     lastBuf += dwRead;
     goto again;
 
-    return 0;  /* makes the compiler happy */
+    return 0; /* makes the compiler happy */
 }
-
+
 static int
 IsIn(
     const char *string,
-    const char *substring)
-{
+    const char *substring) {
     return (strstr(string, substring) != NULL);
 }
-
+
 /*
  * GetVersionFromFile --
  * 	Looks for a match string in a file and then returns the version
@@ -503,92 +498,88 @@ static const char *
 GetVersionFromFile(
     const char *filename,
     const char *match,
-    int numdots)
-{
+    int numdots) {
     static char szBuffer[100];
     char *szResult = NULL;
     FILE *fp = fopen(filename, "rt");
 
     if (fp != NULL) {
-	/*
-	 * Read data until we see our match string.
-	 */
+        /*
+         * Read data until we see our match string.
+         */
 
-	while (fgets(szBuffer, sizeof(szBuffer), fp) != NULL) {
-	    LPSTR p, q;
+        while (fgets(szBuffer, sizeof(szBuffer), fp) != NULL) {
+            LPSTR p, q;
 
-	    p = strstr(szBuffer, match);
-	    if (p != NULL) {
-		/*
-		 * Skip to first digit after the match.
-		 */
+            p = strstr(szBuffer, match);
+            if (p != NULL) {
+                /*
+                 * Skip to first digit after the match.
+                 */
 
-		p += strlen(match);
-		while (*p && !isdigit((unsigned char)*p)) {
-		    ++p;
-		}
+                p += strlen(match);
+                while (*p && !isdigit((unsigned char)*p)) {
+                    ++p;
+                }
 
-		/*
-		 * Find ending whitespace.
-		 */
+                /*
+                 * Find ending whitespace.
+                 */
 
-		q = p;
-		while (*q && (strchr("0123456789.ab", *q)) && (((!strchr(".ab", *q)
-			    && !strchr("ab", q[-1])) || --numdots))) {
-		    ++q;
-		}
+                q = p;
+                while (*q && (strchr("0123456789.ab", *q)) && (((!strchr(".ab", *q) && !strchr("ab", q[-1])) || --numdots))) {
+                    ++q;
+                }
 
-		*q = 0;
-		szResult = p;
-		break;
-	    }
-	}
-	fclose(fp);
+                *q = 0;
+                szResult = p;
+                break;
+            }
+        }
+        fclose(fp);
     }
     return szResult;
 }
-
+
 /*
  * List helpers for the SubstituteFile function
  */
 
 typedef struct list_item_t {
     struct list_item_t *nextPtr;
-    char * key;
-    char * value;
+    char *key;
+    char *value;
 } list_item_t;
 
 /* insert a list item into the list (list may be null) */
 static list_item_t *
-list_insert(list_item_t **listPtrPtr, const char *key, const char *value)
-{
+list_insert(list_item_t **listPtrPtr, const char *key, const char *value) {
     list_item_t *itemPtr = (list_item_t *)malloc(sizeof(list_item_t));
     if (itemPtr) {
-	itemPtr->key = strdup(key);
-	itemPtr->value = strdup(value);
-	itemPtr->nextPtr = NULL;
+        itemPtr->key = strdup(key);
+        itemPtr->value = strdup(value);
+        itemPtr->nextPtr = NULL;
 
-	while(*listPtrPtr) {
-	    listPtrPtr = &(*listPtrPtr)->nextPtr;
-	}
-	*listPtrPtr = itemPtr;
+        while (*listPtrPtr) {
+            listPtrPtr = &(*listPtrPtr)->nextPtr;
+        }
+        *listPtrPtr = itemPtr;
     }
     return itemPtr;
 }
 
 static void
-list_free(list_item_t **listPtrPtr)
-{
+list_free(list_item_t **listPtrPtr) {
     list_item_t *tmpPtr, *listPtr = *listPtrPtr;
     while (listPtr) {
-	tmpPtr = listPtr;
-	listPtr = listPtr->nextPtr;
-	free(tmpPtr->key);
-	free(tmpPtr->value);
-	free(tmpPtr);
+        tmpPtr = listPtr;
+        listPtr = listPtr->nextPtr;
+        free(tmpPtr->key);
+        free(tmpPtr->value);
+        free(tmpPtr);
     }
 }
-
+
 /*
  * SubstituteFile --
  *	As windows doesn't provide anything useful like sed and it's unreliable
@@ -609,88 +600,84 @@ list_free(list_item_t **listPtrPtr)
 static int
 SubstituteFile(
     const char *substitutions,
-    const char *filename)
-{
+    const char *filename) {
     static char szBuffer[1024], szCopy[1024];
     list_item_t *substPtr = NULL;
     FILE *fp, *sp;
 
     fp = fopen(filename, "rt");
     if (fp != NULL) {
+        /*
+         * Build a list of substutitions from the first filename
+         */
 
-	/*
-	 * Build a list of substutitions from the first filename
-	 */
+        sp = fopen(substitutions, "rt");
+        if (sp != NULL) {
+            while (fgets(szBuffer, sizeof(szBuffer), sp) != NULL) {
+                unsigned char *ks, *ke, *vs, *ve;
+                ks = (unsigned char *)szBuffer;
+                while (ks && *ks && isspace(*ks)) ++ks;
+                ke = ks;
+                while (ke && *ke && !isspace(*ke)) ++ke;
+                vs = ke;
+                while (vs && *vs && isspace(*vs)) ++vs;
+                ve = vs;
+                while (ve && *ve && !(*ve == '\r' || *ve == '\n')) ++ve;
+                *ke = 0, *ve = 0;
+                list_insert(&substPtr, (char *)ks, (char *)vs);
+            }
+            fclose(sp);
+        }
 
-	sp = fopen(substitutions, "rt");
-	if (sp != NULL) {
-	    while (fgets(szBuffer, sizeof(szBuffer), sp) != NULL) {
-		unsigned char *ks, *ke, *vs, *ve;
-		ks = (unsigned char*)szBuffer;
-		while (ks && *ks && isspace(*ks)) ++ks;
-		ke = ks;
-		while (ke && *ke && !isspace(*ke)) ++ke;
-		vs = ke;
-		while (vs && *vs && isspace(*vs)) ++vs;
-		ve = vs;
-		while (ve && *ve && !(*ve == '\r' || *ve == '\n')) ++ve;
-		*ke = 0, *ve = 0;
-		list_insert(&substPtr, (char*)ks, (char*)vs);
-	    }
-	    fclose(sp);
-	}
-
-	/* debug: dump the list */
+        /* debug: dump the list */
 #ifndef NDEBUG
-	{
-	    int n = 0;
-	    list_item_t *p = NULL;
-	    for (p = substPtr; p != NULL; p = p->nextPtr, ++n) {
-		fprintf(stderr, "% 3d '%s' => '%s'\n", n, p->key, p->value);
-	    }
-	}
+        {
+            int n = 0;
+            list_item_t *p = NULL;
+            for (p = substPtr; p != NULL; p = p->nextPtr, ++n) {
+                fprintf(stderr, "% 3d '%s' => '%s'\n", n, p->key, p->value);
+            }
+        }
 #endif
 
-	/*
-	 * Run the substitutions over each line of the input
-	 */
+        /*
+         * Run the substitutions over each line of the input
+         */
 
-	while (fgets(szBuffer, sizeof(szBuffer), fp) != NULL) {
-	    list_item_t *p = NULL;
-	    for (p = substPtr; p != NULL; p = p->nextPtr) {
-		char *m = strstr(szBuffer, p->key);
-		if (m) {
-		    char *cp, *op, *sp;
-		    cp = szCopy;
-		    op = szBuffer;
-		    while (op != m) *cp++ = *op++;
-		    sp = p->value;
-		    while (sp && *sp) *cp++ = *sp++;
-		    op += strlen(p->key);
-		    while (*op) *cp++ = *op++;
-		    *cp = 0;
-		    memcpy(szBuffer, szCopy, sizeof(szCopy));
-		}
-	    }
-	    printf("%s", szBuffer);
-	}
+        while (fgets(szBuffer, sizeof(szBuffer), fp) != NULL) {
+            list_item_t *p = NULL;
+            for (p = substPtr; p != NULL; p = p->nextPtr) {
+                char *m = strstr(szBuffer, p->key);
+                if (m) {
+                    char *cp, *op, *sp;
+                    cp = szCopy;
+                    op = szBuffer;
+                    while (op != m) *cp++ = *op++;
+                    sp = p->value;
+                    while (sp && *sp) *cp++ = *sp++;
+                    op += strlen(p->key);
+                    while (*op) *cp++ = *op++;
+                    *cp = 0;
+                    memcpy(szBuffer, szCopy, sizeof(szCopy));
+                }
+            }
+            printf("%s", szBuffer);
+        }
 
-	list_free(&substPtr);
+        list_free(&substPtr);
     }
     fclose(fp);
     return 0;
 }
-
-BOOL FileExists(LPCTSTR szPath)
-{
+
+BOOL FileExists(LPCTSTR szPath) {
 #ifndef INVALID_FILE_ATTRIBUTES
-    #define INVALID_FILE_ATTRIBUTES ((DWORD)-1)
+#define INVALID_FILE_ATTRIBUTES ((DWORD) - 1)
 #endif
     DWORD pathAttr = GetFileAttributes(szPath);
     return (pathAttr != INVALID_FILE_ATTRIBUTES &&
-	    !(pathAttr & FILE_ATTRIBUTE_DIRECTORY));
+            !(pathAttr & FILE_ATTRIBUTE_DIRECTORY));
 }
-
 
 /*
  * QualifyPath --
@@ -702,11 +689,10 @@ BOOL FileExists(LPCTSTR szPath)
 
 static int
 QualifyPath(
-    const char *szPath)
-{
+    const char *szPath) {
     char szCwd[MAX_PATH + 1];
 
-    GetFullPathName(szPath, sizeof(szCwd)-1, szCwd, NULL);
+    GetFullPathName(szPath, sizeof(szCwd) - 1, szCwd, NULL);
     printf("%s\n", szCwd);
     return 0;
 }
@@ -719,21 +705,20 @@ QualifyPath(
  * Returns 2 on any kind of error
  * Basically, these are used as exit codes for the process.
  */
-static int LocateDependencyHelper(const char *dir, const char *keypath)
-{
+static int LocateDependencyHelper(const char *dir, const char *keypath) {
     HANDLE hSearch;
-    char path[MAX_PATH+1];
+    char path[MAX_PATH + 1];
     size_t dirlen;
     int keylen, ret;
     WIN32_FIND_DATA finfo;
 
     if (dir == NULL || keypath == NULL)
-	return 2; /* Have no real error reporting mechanism into nmake */
+        return 2; /* Have no real error reporting mechanism into nmake */
     dirlen = strlen(dir);
     if ((dirlen + 3) > sizeof(path))
-	return 2;
+        return 2;
     strncpy(path, dir, dirlen);
-    strncpy(path+dirlen, "\\*", 3);	/* Including terminating \0 */
+    strncpy(path + dirlen, "\\*", 3); /* Including terminating \0 */
     keylen = strlen(keypath);
 
 #if 0 /* This function is not available in Visual C++ 6 */
@@ -747,31 +732,31 @@ static int LocateDependencyHelper(const char *dir, const char *keypath)
     hSearch = FindFirstFile(path, &finfo);
 #endif
     if (hSearch == INVALID_HANDLE_VALUE)
-	return 1; /* Not found */
+        return 1; /* Not found */
 
     /* Loop through all subdirs checking if the keypath is under there */
     ret = 1; /* Assume not found */
     do {
-	int sublen;
-	/*
-	 * We need to check it is a directory despite the
-	 * FindExSearchLimitToDirectories in the above call. See SDK docs
-	 */
-	if ((finfo.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0)
-	    continue;
-	sublen = strlen(finfo.cFileName);
-	if ((dirlen+1+sublen+1+keylen+1) > sizeof(path))
-	    continue;		/* Path does not fit, assume not matched */
-	strncpy(path+dirlen+1, finfo.cFileName, sublen);
-	path[dirlen+1+sublen] = '\\';
-	strncpy(path+dirlen+1+sublen+1, keypath, keylen+1);
-	if (FileExists(path)) {
-	    /* Found a match, print to stdout */
-	    path[dirlen+1+sublen] = '\0';
-	    QualifyPath(path);
-	    ret = 0;
-	    break;
-	}
+        int sublen;
+        /*
+         * We need to check it is a directory despite the
+         * FindExSearchLimitToDirectories in the above call. See SDK docs
+         */
+        if ((finfo.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0)
+            continue;
+        sublen = strlen(finfo.cFileName);
+        if ((dirlen + 1 + sublen + 1 + keylen + 1) > sizeof(path))
+            continue; /* Path does not fit, assume not matched */
+        strncpy(path + dirlen + 1, finfo.cFileName, sublen);
+        path[dirlen + 1 + sublen] = '\\';
+        strncpy(path + dirlen + 1 + sublen + 1, keypath, keylen + 1);
+        if (FileExists(path)) {
+            /* Found a match, print to stdout */
+            path[dirlen + 1 + sublen] = '\0';
+            QualifyPath(path);
+            ret = 0;
+            break;
+        }
     } while (FindNextFile(hSearch, &finfo));
     FindClose(hSearch);
     return ret;
@@ -789,20 +774,18 @@ static int LocateDependencyHelper(const char *dir, const char *keypath)
  *         name_DIRPATH=<full path of located directory>
  *      and returns 0. If not found, does not print anything and returns 1.
  */
-static int LocateDependency(const char *keypath)
-{
+static int LocateDependency(const char *keypath) {
     size_t i;
     int ret;
     static const char *paths[] = {"..", "..\\..", "..\\..\\.."};
 
-    for (i = 0; i < (sizeof(paths)/sizeof(paths[0])); ++i) {
-	ret = LocateDependencyHelper(paths[i], keypath);
-	if (ret == 0)
-	    return ret;
+    for (i = 0; i < (sizeof(paths) / sizeof(paths[0])); ++i) {
+        ret = LocateDependencyHelper(paths[i], keypath);
+        if (ret == 0)
+            return ret;
     }
     return ret;
 }
-
 
 /*
  * Local variables:

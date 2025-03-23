@@ -38,10 +38,10 @@ extern "C" {
 ** this interface is a harmless no-op returnning SQLITE_OK.
 */
 int sqlite3_user_authenticate(
-  sqlite3 *db,           /* The database connection */
-  const char *zUsername, /* Username */
-  const char *aPW,       /* Password or credentials */
-  int nPW                /* Number of bytes in aPW[] */
+    sqlite3 *db,           /* The database connection */
+    const char *zUsername, /* Username */
+    const char *aPW,       /* Password or credentials */
+    int nPW                /* Number of bytes in aPW[] */
 );
 
 /*
@@ -55,26 +55,26 @@ int sqlite3_user_authenticate(
 ** non-admin user results in an error.
 */
 int sqlite3_user_add(
-  sqlite3 *db,           /* Database connection */
-  const char *zUsername, /* Username to be added */
-  const char *aPW,       /* Password or credentials */
-  int nPW,               /* Number of bytes in aPW[] */
-  int isAdmin            /* True to give new user admin privilege */
+    sqlite3 *db,           /* Database connection */
+    const char *zUsername, /* Username to be added */
+    const char *aPW,       /* Password or credentials */
+    int nPW,               /* Number of bytes in aPW[] */
+    int isAdmin            /* True to give new user admin privilege */
 );
 
 /*
 ** The sqlite3_user_change() interface can be used to change a users
 ** login credentials or admin privilege.  Any user can change their own
 ** login credentials.  Only an admin user can change another users login
-** credentials or admin privilege setting.  No user may change their own 
+** credentials or admin privilege setting.  No user may change their own
 ** admin privilege setting.
 */
 int sqlite3_user_change(
-  sqlite3 *db,           /* Database connection */
-  const char *zUsername, /* Username to change */
-  const char *aPW,       /* New password or credentials */
-  int nPW,               /* Number of bytes in aPW[] */
-  int isAdmin            /* Modified admin privilege for the user */
+    sqlite3 *db,           /* Database connection */
+    const char *zUsername, /* Username to change */
+    const char *aPW,       /* New password or credentials */
+    int nPW,               /* Number of bytes in aPW[] */
+    int isAdmin            /* Modified admin privilege for the user */
 );
 
 /*
@@ -85,12 +85,12 @@ int sqlite3_user_change(
 ** database.
 */
 int sqlite3_user_delete(
-  sqlite3 *db,           /* Database connection */
-  const char *zUsername  /* Username to remove */
+    sqlite3 *db,          /* Database connection */
+    const char *zUsername /* Username to remove */
 );
 
 #ifdef __cplusplus
-}  /* end of the 'extern "C"' block */
+} /* end of the 'extern "C"' block */
 #endif
 
 #endif /* SQLITE_USER_AUTHENTICATION */

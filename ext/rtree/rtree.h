@@ -16,15 +16,15 @@
 #include "sqlite3.h"
 
 #ifdef SQLITE_OMIT_VIRTUALTABLE
-# undef SQLITE_ENABLE_RTREE
+#undef SQLITE_ENABLE_RTREE
 #endif
 
 #ifdef __cplusplus
 extern "C" {
-#endif  /* __cplusplus */
+#endif /* __cplusplus */
 
 int sqlite3RtreeInit(sqlite3 *db);
 
 #ifdef __cplusplus
-}  /* extern "C" */
-#endif  /* __cplusplus */
+} /* extern "C" */
+#endif /* __cplusplus */

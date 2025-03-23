@@ -14,10 +14,11 @@
 ** initialization of the library will fail.
 */
 
-#include "sqlite3.h"
 #include <stdio.h>
 
-int sqlite3_wasm_extra_init(const char *z){
-  fprintf(stderr,"%s: %s()\n", __FILE__, __func__);
-  return 0;
+#include "sqlite3.h"
+
+int sqlite3_wasm_extra_init(const char *z) {
+    fprintf(stderr, "%s: %s()\n", __FILE__, __func__);
+    return 0;
 }

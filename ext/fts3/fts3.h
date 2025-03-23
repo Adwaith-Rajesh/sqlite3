@@ -17,10 +17,10 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif  /* __cplusplus */
+#endif /* __cplusplus */
 
 int sqlite3Fts3Init(sqlite3 *db);
 
 #ifdef __cplusplus
-}  /* extern "C" */
-#endif  /* __cplusplus */
+} /* extern "C" */
+#endif /* __cplusplus */

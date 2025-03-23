@@ -36,12 +36,12 @@
 */
 
 #ifndef SQLITE_SHELL_EXTFUNCS /* Guard for #include as built-in extension. */
-# include "sqlite3ext.h"
+#include "sqlite3ext.h"
 SQLITE_EXTENSION_INIT1;
 #endif
 
-static void init_api_ptr(const sqlite3_api_routines *pApi){
-  SQLITE_EXTENSION_INIT2(pApi);
+static void init_api_ptr(const sqlite3_api_routines *pApi) {
+    SQLITE_EXTENSION_INIT2(pApi);
 }
 
 #undef SQLITE_EXTENSION_INIT1
@@ -67,23 +67,24 @@ typedef unsigned char u8;
 #ifdef _WIN32
 __declspec(dllexport)
 #endif
-int sqlite3_basexx_init(sqlite3 *db, char **pzErr,
-                               const sqlite3_api_routines *pApi){
-  int rc1;
-  int rc2;
+int
+sqlite3_basexx_init(sqlite3 *db, char **pzErr,
+                    const sqlite3_api_routines *pApi) {
+    int rc1;
+    int rc2;
 
-  init_api_ptr(pApi);
-  rc1 = BASE64_INIT(db);
-  rc2 = BASE85_INIT(db);
+    init_api_ptr(pApi);
+    rc1 = BASE64_INIT(db);
+    rc2 = BASE85_INIT(db);
 
-  if( rc1==SQLITE_OK && rc2==SQLITE_OK ){
-    BASE64_EXPOSE(db, pzErr);
-    BASE64_EXPOSE(db, pzErr);
-    return SQLITE_OK;
-  }else{
-    return SQLITE_ERROR;
-  }
+    if (rc1 == SQLITE_OK && rc2 == SQLITE_OK) {
+        BASE64_EXPOSE(db, pzErr);
+        BASE64_EXPOSE(db, pzErr);
+        return SQLITE_OK;
+    } else {
+        return SQLITE_ERROR;
+    }
 }
 
-# define BASEXX_INIT(db) sqlite3_basexx_init(db, 0, 0)
-# define BASEXX_EXPOSE(db, pzErr) /* Not needed, ..._init() does this. */
+#define BASEXX_INIT(db) sqlite3_basexx_init(db, 0, 0)
+#define BASEXX_EXPOSE(db, pzErr) /* Not needed, ..._init() does this. */

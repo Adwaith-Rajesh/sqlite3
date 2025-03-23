@@ -2,142 +2,137 @@
 #ifndef __WRAPPER_INT_H_
 #define __WRAPPER_INT_H_
 
-#include "lsmtest_tdb.h"
-#include "sqlite3.h"
-#include "lsm.h"
-
 #include <assert.h>
 #include <stdarg.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
+
+#include "lsm.h"
+#include "lsmtest_tdb.h"
+#include "sqlite3.h"
 #ifndef _WIN32
-# include <unistd.h>
+#include <unistd.h>
 #endif
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 #include <ctype.h>
-#include <stdlib.h>
 #include <errno.h>
+#include <fcntl.h>
+#include <stdlib.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #ifdef _WIN32
-# include "windows.h"
-# define gettimeofday win32GetTimeOfDay
-# define F_OK  (0)
-# define sleep(sec) Sleep(1000 * (sec))
-# define usleep(usec) Sleep(((usec) + 999) / 1000)
-# ifdef _MSC_VER
-#  include <io.h>
-#  define snprintf _snprintf
-#  define fsync(fd) FlushFileBuffers((HANDLE)_get_osfhandle((fd)))
-#  define fdatasync(fd) FlushFileBuffers((HANDLE)_get_osfhandle((fd)))
-#  define __va_copy(dst,src) ((dst) = (src))
-#  define ftruncate(fd,sz) ((_chsize_s((fd), (sz))==0) ? 0 : -1)
-# else
-#  error Unsupported C compiler for Windows.
-# endif
+#include "windows.h"
+#define gettimeofday win32GetTimeOfDay
+#define F_OK (0)
+#define sleep(sec) Sleep(1000 * (sec))
+#define usleep(usec) Sleep(((usec) + 999) / 1000)
+#ifdef _MSC_VER
+#include <io.h>
+#define snprintf _snprintf
+#define fsync(fd) FlushFileBuffers((HANDLE)_get_osfhandle((fd)))
+#define fdatasync(fd) FlushFileBuffers((HANDLE)_get_osfhandle((fd)))
+#define __va_copy(dst, src) ((dst) = (src))
+#define ftruncate(fd, sz) ((_chsize_s((fd), (sz)) == 0) ? 0 : -1)
+#else
+#error Unsupported C compiler for Windows.
+#endif
 int win32GetTimeOfDay(struct timeval *, void *);
 #endif
 
 #ifndef _LSM_INT_H
-typedef unsigned int  u32;
+typedef unsigned int u32;
 typedef unsigned char u8;
 typedef long long int i64;
 typedef unsigned long long int u64;
 #endif
 
-
 #define ArraySize(x) ((int)(sizeof(x) / sizeof((x)[0])))
 
-#define MIN(x,y) ((x)<(y) ? (x) : (y))
-#define MAX(x,y) ((x)>(y) ? (x) : (y))
+#define MIN(x, y) ((x) < (y) ? (x) : (y))
+#define MAX(x, y) ((x) > (y) ? (x) : (y))
 
 #define unused_parameter(x) (void)(x)
 
-#define TESTDB_DEFAULT_PAGE_SIZE   4096
-#define TESTDB_DEFAULT_CACHE_SIZE  2048
+#define TESTDB_DEFAULT_PAGE_SIZE 4096
+#define TESTDB_DEFAULT_CACHE_SIZE 2048
 
 #ifndef _O_BINARY
-# define _O_BINARY (0)
+#define _O_BINARY (0)
 #endif
 
 /*
-** Ideally, these should be in wrapper.c. But they are here instead so that 
+** Ideally, these should be in wrapper.c. But they are here instead so that
 ** they can be used by the C++ database wrappers in wrapper2.cc.
 */
 typedef struct DatabaseMethods DatabaseMethods;
 struct TestDb {
-  DatabaseMethods const *pMethods;          /* Database methods */
-  const char *zLibrary;                     /* Library name for tdb_open() */
+    DatabaseMethods const *pMethods; /* Database methods */
+    const char *zLibrary;            /* Library name for tdb_open() */
 };
 struct DatabaseMethods {
-  int (*xClose)(TestDb *);
-  int (*xWrite)(TestDb *, void *, int , void *, int);
-  int (*xDelete)(TestDb *, void *, int);
-  int (*xDeleteRange)(TestDb *, void *, int, void *, int);
-  int (*xFetch)(TestDb *, void *, int, void **, int *);
-  int (*xScan)(TestDb *, void *, int, void *, int, void *, int,
-    void (*)(void *, void *, int , void *, int)
-  );
-  int (*xBegin)(TestDb *, int);
-  int (*xCommit)(TestDb *, int);
-  int (*xRollback)(TestDb *, int);
+    int (*xClose)(TestDb *);
+    int (*xWrite)(TestDb *, void *, int, void *, int);
+    int (*xDelete)(TestDb *, void *, int);
+    int (*xDeleteRange)(TestDb *, void *, int, void *, int);
+    int (*xFetch)(TestDb *, void *, int, void **, int *);
+    int (*xScan)(TestDb *, void *, int, void *, int, void *, int,
+                 void (*)(void *, void *, int, void *, int));
+    int (*xBegin)(TestDb *, int);
+    int (*xCommit)(TestDb *, int);
+    int (*xRollback)(TestDb *, int);
 };
 
-/* 
+/*
 ** Functions in wrapper2.cc (a C++ source file). wrapper2.cc contains the
 ** wrapper for Kyoto Cabinet. Kyoto cabinet has a C API, but
 ** the primary interface is the C++ API.
 */
-int test_kc_open(const char*, const char *zFilename, int bClear, TestDb **ppDb);
+int test_kc_open(const char *, const char *zFilename, int bClear, TestDb **ppDb);
 int test_kc_close(TestDb *);
-int test_kc_write(TestDb *, void *, int , void *, int);
+int test_kc_write(TestDb *, void *, int, void *, int);
 int test_kc_delete(TestDb *, void *, int);
 int test_kc_delete_range(TestDb *, void *, int, void *, int);
 int test_kc_fetch(TestDb *, void *, int, void **, int *);
 int test_kc_scan(TestDb *, void *, int, void *, int, void *, int,
-  void (*)(void *, void *, int , void *, int)
-);
+                 void (*)(void *, void *, int, void *, int));
 
-int test_mdb_open(const char*, const char *zFile, int bClear, TestDb **ppDb);
+int test_mdb_open(const char *, const char *zFile, int bClear, TestDb **ppDb);
 int test_mdb_close(TestDb *);
-int test_mdb_write(TestDb *, void *, int , void *, int);
+int test_mdb_write(TestDb *, void *, int, void *, int);
 int test_mdb_delete(TestDb *, void *, int);
 int test_mdb_fetch(TestDb *, void *, int, void **, int *);
 int test_mdb_scan(TestDb *, void *, int, void *, int, void *, int,
-  void (*)(void *, void *, int , void *, int)
-);
+                  void (*)(void *, void *, int, void *, int));
 
-/* 
+/*
 ** Functions in wrapper3.c. This file contains the tdb wrapper for lsm.
-** The wrapper for lsm is a bit more involved than the others, as it 
+** The wrapper for lsm is a bit more involved than the others, as it
 ** includes code for a couple of different lsm configurations, and for
 ** various types of fault injection and robustness testing.
 */
-int test_lsm_open(const char*, const char *zFile, int bClear, TestDb **ppDb);
-int test_lsm_lomem_open(const char*, const char*, int bClear, TestDb **ppDb);
-int test_lsm_lomem2_open(const char*, const char*, int bClear, TestDb **ppDb);
-int test_lsm_zip_open(const char*, const char*, int bClear, TestDb **ppDb);
-int test_lsm_small_open(const char*, const char*, int bClear, TestDb **ppDb);
-int test_lsm_mt2(const char*, const char *zFile, int bClear, TestDb **ppDb);
-int test_lsm_mt3(const char*, const char *zFile, int bClear, TestDb **ppDb);
+int test_lsm_open(const char *, const char *zFile, int bClear, TestDb **ppDb);
+int test_lsm_lomem_open(const char *, const char *, int bClear, TestDb **ppDb);
+int test_lsm_lomem2_open(const char *, const char *, int bClear, TestDb **ppDb);
+int test_lsm_zip_open(const char *, const char *, int bClear, TestDb **ppDb);
+int test_lsm_small_open(const char *, const char *, int bClear, TestDb **ppDb);
+int test_lsm_mt2(const char *, const char *zFile, int bClear, TestDb **ppDb);
+int test_lsm_mt3(const char *, const char *zFile, int bClear, TestDb **ppDb);
 
 int tdb_lsm_configure(lsm_db *, const char *);
 
 /* Functions in lsmtest_tdb4.c */
-int test_bt_open(const char*, const char *zFile, int bClear, TestDb **ppDb);
-int test_fbt_open(const char*, const char *zFile, int bClear, TestDb **ppDb);
-int test_fbts_open(const char*, const char *zFile, int bClear, TestDb **ppDb);
-
+int test_bt_open(const char *, const char *zFile, int bClear, TestDb **ppDb);
+int test_fbt_open(const char *, const char *zFile, int bClear, TestDb **ppDb);
+int test_fbts_open(const char *, const char *zFile, int bClear, TestDb **ppDb);
 
 /* Functions in testutil.c. */
-int  testPrngInit(void);
-u32  testPrngValue(u32 iVal);
+int testPrngInit(void);
+u32 testPrngValue(u32 iVal);
 void testPrngArray(u32 iVal, u32 *aOut, int nOut);
 void testPrngString(u32 iVal, char *aOut, int nOut);
 
@@ -146,13 +141,13 @@ void testPrintError(const char *zFormat, ...);
 void testPrintUsage(const char *zArgs);
 void testPrintFUsage(const char *zFormat, ...);
 void testTimeInit(void);
-int  testTimeGet(void);
+int testTimeGet(void);
 
 /* Functions in testmem.c. */
 void testMallocInstall(lsm_env *pEnv);
 void testMallocUninstall(lsm_env *pEnv);
 void testMallocCheck(lsm_env *pEnv, int *, int *, FILE *);
-void testMallocOom(lsm_env *pEnv, int, int, void(*)(void*), void *);
+void testMallocOom(lsm_env *pEnv, int, int, void (*)(void *), void *);
 void testMallocOomEnable(lsm_env *pEnv, int);
 
 /* lsmtest.c */
@@ -231,15 +226,15 @@ typedef struct Datasource Datasource;
 typedef struct DatasourceDefn DatasourceDefn;
 
 struct DatasourceDefn {
-  int eType;                      /* A TEST_DATASOURCE_* value */
-  int nMinKey;                    /* Minimum key size */
-  int nMaxKey;                    /* Maximum key size */
-  int nMinVal;                    /* Minimum value size */
-  int nMaxVal;                    /* Maximum value size */
+    int eType;   /* A TEST_DATASOURCE_* value */
+    int nMinKey; /* Minimum key size */
+    int nMaxKey; /* Maximum key size */
+    int nMinVal; /* Minimum value size */
+    int nMaxVal; /* Maximum value size */
 };
 
-#define TEST_DATASOURCE_RANDOM    1
-#define TEST_DATASOURCE_SEQUENCE  2
+#define TEST_DATASOURCE_RANDOM 1
+#define TEST_DATASOURCE_SEQUENCE 2
 
 char *testDatasourceName(const DatasourceDefn *);
 Datasource *testDatasourceNew(const DatasourceDefn *);
@@ -248,17 +243,16 @@ void testDatasourceEntry(Datasource *, int, void **, int *, void **, int *);
 /* End of test_datasource.c interface.
 *************************************************************************/
 void testDatasourceFetch(
-  TestDb *pDb,                    /* Database handle */
-  Datasource *pData,
-  int iKey,
-  int *pRc                        /* IN/OUT: Error code */
+    TestDb *pDb, /* Database handle */
+    Datasource *pData,
+    int iKey,
+    int *pRc /* IN/OUT: Error code */
 );
 
 void testWriteDatasource(TestDb *, Datasource *, int, int *);
 void testWriteDatasourceRange(TestDb *, Datasource *, int, int, int *);
 void testDeleteDatasource(TestDb *, Datasource *, int, int *);
 void testDeleteDatasourceRange(TestDb *, Datasource *, int, int, int *);
-
 
 /* test1.c */
 void test_data_1(const char *, const char *, int *pRc);
@@ -289,15 +283,14 @@ void testCompareStr(const char *z1, const char *z2, int *pRc);
 /* lsmtest9.c */
 void test_data_4(const char *, const char *, int *pRc);
 
-
 /*
 ** Similar to the Tcl_GetIndexFromObjStruct() Tcl library function.
 */
-#define testArgSelect(w,x,y,z) testArgSelectX(w,x,sizeof(w[0]),y,z)
+#define testArgSelect(w, x, y, z) testArgSelectX(w, x, sizeof(w[0]), y, z)
 int testArgSelectX(void *, const char *, int, const char *, int *);
 
 #ifdef __cplusplus
-}  /* End of the 'extern "C"' block */
+} /* End of the 'extern "C"' block */
 #endif
 
 #endif
