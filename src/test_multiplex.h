@@ -13,7 +13,7 @@
 ** This file contains a VFS "shim" - a layer that sits in between the
 ** pager and the real VFS.
 **
-** This particular shim enforces a multiplex system on DB files. 
+** This particular shim enforces a multiplex system on DB files.
 ** This shim shards/partitions a single DB file into smaller
 ** "chunks" such that the total DB file size may exceed the maximum
 ** file size of the underlying file system.
@@ -26,7 +26,8 @@
 /*
 ** CAPI: File-control Operations Supported by Multiplex VFS
 **
-** Values interpreted by the xFileControl method of a Multiplex VFS db file-handle.
+** Values interpreted by the xFileControl method of a Multiplex VFS db
+*file-handle.
 **
 ** MULTIPLEX_CTRL_ENABLE:
 **   This file control is used to enable or disable the multiplex
@@ -42,9 +43,9 @@
 **   This file control is used to set the maximum number of chunks
 **   allowed to be used for a multiplex file set.
 */
-#define MULTIPLEX_CTRL_ENABLE          214014
-#define MULTIPLEX_CTRL_SET_CHUNK_SIZE  214015
-#define MULTIPLEX_CTRL_SET_MAX_CHUNKS  214016
+#define MULTIPLEX_CTRL_ENABLE 214014
+#define MULTIPLEX_CTRL_SET_CHUNK_SIZE 214015
+#define MULTIPLEX_CTRL_SET_MAX_CHUNKS 214016
 
 #ifdef __cplusplus
 extern "C" {
@@ -53,8 +54,8 @@ extern "C" {
 /*
 ** CAPI: Initialize the multiplex VFS shim - sqlite3_multiplex_initialize()
 **
-** Use the VFS named zOrigVfsName as the VFS that does the actual work. 
-** Use the default if zOrigVfsName==NULL. 
+** Use the VFS named zOrigVfsName as the VFS that does the actual work.
+** Use the default if zOrigVfsName==NULL.
 **
 ** The multiplex VFS shim is named "multiplex".  It will become the default
 ** VFS if makeDefault is non-zero.
@@ -79,7 +80,8 @@ extern "C" {
 ** THIS ROUTINE IS NOT THREADSAFE.  Call this routine exactly once
 ** during start-up.
 */
-extern int sqlite3_multiplex_initialize(const char *zOrigVfsName, int makeDefault);
+extern int sqlite3_multiplex_initialize(const char *zOrigVfsName,
+                                        int makeDefault);
 
 /*
 ** CAPI: Shutdown the multiplex system - sqlite3_multiplex_shutdown()
@@ -93,7 +95,7 @@ extern int sqlite3_multiplex_initialize(const char *zOrigVfsName, int makeDefaul
 extern int sqlite3_multiplex_shutdown(int eForce);
 
 #ifdef __cplusplus
-}  /* End of the 'extern "C"' block */
+} /* End of the 'extern "C"' block */
 #endif
 
 #endif /* SQLITE_TEST_MULTIPLEX_H */

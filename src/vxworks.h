@@ -14,9 +14,9 @@
 */
 #if defined(__RTP__) || defined(_WRS_KERNEL)
 /* This is VxWorks.  Set up things specially for that OS
-*/
+ */
+#include <pthread.h> /* amalgamator: dontcache */
 #include <vxWorks.h>
-#include <pthread.h>  /* amalgamator: dontcache */
 #define OS_VXWORKS 1
 #define SQLITE_OS_OTHER 0
 #define SQLITE_HOMEGROWN_RECURSIVE_MUTEX 1

@@ -21,8 +21,8 @@
 #include "windows.h"
 
 #ifdef __CYGWIN__
-# include <sys/cygwin.h>
-# include <errno.h> /* amalgamator: dontcache */
+#include <errno.h> /* amalgamator: dontcache */
+#include <sys/cygwin.h>
 #endif
 
 /*
@@ -43,7 +43,7 @@
 ** by setting SQLITE_OS_WINNT to 0.
 */
 #if SQLITE_OS_WIN && !defined(SQLITE_OS_WINNT)
-# define SQLITE_OS_WINNT 1
+#define SQLITE_OS_WINNT 1
 #endif
 
 /*
@@ -51,9 +51,9 @@
 ** API.
 */
 #if defined(_WIN32_WCE)
-# define SQLITE_OS_WINCE 1
+#define SQLITE_OS_WINCE 1
 #else
-# define SQLITE_OS_WINCE 0
+#define SQLITE_OS_WINCE 0
 #endif
 
 /*
@@ -61,7 +61,7 @@
 ** the full Win32 API.
 */
 #if !defined(SQLITE_OS_WINRT)
-# define SQLITE_OS_WINRT 0
+#define SQLITE_OS_WINRT 0
 #endif
 
 /*
@@ -69,9 +69,9 @@
 ** volatile.
 */
 #if SQLITE_OS_WINCE
-# define SQLITE_WIN32_VOLATILE
+#define SQLITE_WIN32_VOLATILE
 #else
-# define SQLITE_WIN32_VOLATILE volatile
+#define SQLITE_WIN32_VOLATILE volatile
 #endif
 
 /*
@@ -79,10 +79,10 @@
 ** functions are not available (e.g. those not using MSVC, Cygwin, etc).
 */
 #if SQLITE_OS_WIN && !SQLITE_OS_WINCE && !SQLITE_OS_WINRT && \
-    SQLITE_THREADSAFE>0 && !defined(__CYGWIN__)
-# define SQLITE_OS_WIN_THREADS 1
+    SQLITE_THREADSAFE > 0 && !defined(__CYGWIN__)
+#define SQLITE_OS_WIN_THREADS 1
 #else
-# define SQLITE_OS_WIN_THREADS 0
+#define SQLITE_OS_WIN_THREADS 0
 #endif
 
 #endif /* SQLITE_OS_WIN_H */

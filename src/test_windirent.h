@@ -36,13 +36,13 @@
 ** We need several things from the ANSI and MSVCRT headers.
 */
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <errno.h>
 #include <io.h>
 #include <limits.h>
-#include <sys/types.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 
 /*
 ** We may need several defines that should have been in "sys/stat.h".
@@ -65,8 +65,8 @@
 */
 
 #ifndef MODE_T_DEFINED
-  #define MODE_T_DEFINED
-  typedef unsigned short mode_t;
+#define MODE_T_DEFINED
+typedef unsigned short mode_t;
 #endif
 
 /*
@@ -74,8 +74,8 @@
 */
 
 #ifndef INO_T_DEFINED
-  #define INO_T_DEFINED
-  typedef unsigned short ino_t;
+#define INO_T_DEFINED
+typedef unsigned short ino_t;
 #endif
 
 /*
@@ -83,11 +83,11 @@
 */
 
 #ifndef NAME_MAX
-#  ifdef FILENAME_MAX
-#    define NAME_MAX (FILENAME_MAX)
-#  else
-#    define NAME_MAX (260)
-#  endif
+#ifdef FILENAME_MAX
+#define NAME_MAX (FILENAME_MAX)
+#else
+#define NAME_MAX (260)
+#endif
 #endif
 
 /*
@@ -95,11 +95,11 @@
 */
 
 #ifndef NULL_INTPTR_T
-#  define NULL_INTPTR_T ((intptr_t)(0))
+#define NULL_INTPTR_T ((intptr_t)(0))
 #endif
 
 #ifndef BAD_INTPTR_T
-#  define BAD_INTPTR_T ((intptr_t)(-1))
+#define BAD_INTPTR_T ((intptr_t)(-1))
 #endif
 
 /*
@@ -111,9 +111,9 @@
 typedef struct DIRENT DIRENT;
 typedef DIRENT *LPDIRENT;
 struct DIRENT {
-  ino_t d_ino;               /* Sequence number, do not use. */
-  unsigned d_attributes;     /* Win32 file attributes. */
-  char d_name[NAME_MAX + 1]; /* Name within the directory. */
+    ino_t d_ino;               /* Sequence number, do not use. */
+    unsigned d_attributes;     /* Win32 file attributes. */
+    char d_name[NAME_MAX + 1]; /* Name within the directory. */
 };
 #endif
 
@@ -122,9 +122,9 @@ struct DIRENT {
 typedef struct DIR DIR;
 typedef DIR *LPDIR;
 struct DIR {
-  intptr_t d_handle; /* Value returned by "_findfirst". */
-  DIRENT d_first;    /* DIRENT constructed based on "_findfirst". */
-  DIRENT d_next;     /* DIRENT constructed based on "_findnext". */
+    intptr_t d_handle; /* Value returned by "_findfirst". */
+    DIRENT d_first;    /* DIRENT constructed based on "_findfirst". */
+    DIRENT d_next;     /* DIRENT constructed based on "_findnext". */
 };
 #endif
 
@@ -136,7 +136,8 @@ struct DIR {
 */
 
 #ifndef is_filtered
-#  define is_filtered(a) ((((a).attrib)&_A_HIDDEN) || (((a).attrib)&_A_SYSTEM))
+#define is_filtered(a) \
+    ((((a).attrib) & _A_HIDDEN) || (((a).attrib) & _A_SYSTEM))
 #endif
 
 /*

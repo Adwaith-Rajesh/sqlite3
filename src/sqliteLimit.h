@@ -21,7 +21,7 @@
 ** to count the size: 2^31-1 or 2147483647.
 */
 #ifndef SQLITE_MAX_LENGTH
-# define SQLITE_MAX_LENGTH 1000000000
+#define SQLITE_MAX_LENGTH 1000000000
 #endif
 
 /*
@@ -42,7 +42,7 @@
 ** dozen values in any of the other situations described above.
 */
 #ifndef SQLITE_MAX_COLUMN
-# define SQLITE_MAX_COLUMN 2000
+#define SQLITE_MAX_COLUMN 2000
 #endif
 
 /*
@@ -53,7 +53,7 @@
 ** to turn this limit off.
 */
 #ifndef SQLITE_MAX_SQL_LENGTH
-# define SQLITE_MAX_SQL_LENGTH 1000000000
+#define SQLITE_MAX_SQL_LENGTH 1000000000
 #endif
 
 /*
@@ -63,7 +63,7 @@
 ** expression. A value of 0 means that there is no limit.
 */
 #ifndef SQLITE_MAX_EXPR_DEPTH
-# define SQLITE_MAX_EXPR_DEPTH 1000
+#define SQLITE_MAX_EXPR_DEPTH 1000
 #endif
 
 /*
@@ -75,7 +75,7 @@
 ** any limit on the number of terms in a compound SELECT.
 */
 #ifndef SQLITE_MAX_COMPOUND_SELECT
-# define SQLITE_MAX_COMPOUND_SELECT 500
+#define SQLITE_MAX_COMPOUND_SELECT 500
 #endif
 
 /*
@@ -83,14 +83,14 @@
 ** Not currently enforced.
 */
 #ifndef SQLITE_MAX_VDBE_OP
-# define SQLITE_MAX_VDBE_OP 250000000
+#define SQLITE_MAX_VDBE_OP 250000000
 #endif
 
 /*
 ** The maximum number of arguments to an SQL function.
 */
 #ifndef SQLITE_MAX_FUNCTION_ARG
-# define SQLITE_MAX_FUNCTION_ARG 127
+#define SQLITE_MAX_FUNCTION_ARG 127
 #endif
 
 /*
@@ -103,7 +103,7 @@
 ** altered using the SQLITE_DEFAULT_CACHE_SIZE compile-time options.
 */
 #ifndef SQLITE_DEFAULT_CACHE_SIZE
-# define SQLITE_DEFAULT_CACHE_SIZE  -2000
+#define SQLITE_DEFAULT_CACHE_SIZE -2000
 #endif
 
 /*
@@ -111,7 +111,7 @@
 ** checkpointing the database in WAL mode.
 */
 #ifndef SQLITE_DEFAULT_WAL_AUTOCHECKPOINT
-# define SQLITE_DEFAULT_WAL_AUTOCHECKPOINT  1000
+#define SQLITE_DEFAULT_WAL_AUTOCHECKPOINT 1000
 #endif
 
 /*
@@ -121,9 +121,8 @@
 ** and we have to allow 2 extra counts for the "main" and "temp" databases.
 */
 #ifndef SQLITE_MAX_ATTACHED
-# define SQLITE_MAX_ATTACHED 10
+#define SQLITE_MAX_ATTACHED 10
 #endif
-
 
 /*
 ** The maximum value of a ?nnn wildcard that the parser will accept.
@@ -132,7 +131,7 @@
 ** as a signed 32-bit integer can hold.
 */
 #ifndef SQLITE_MAX_VARIABLE_NUMBER
-# define SQLITE_MAX_VARIABLE_NUMBER 32766
+#define SQLITE_MAX_VARIABLE_NUMBER 32766
 #endif
 
 /* Maximum page size.  The upper bound on this value is 65536.  This a limit
@@ -147,20 +146,19 @@
 ** the aborted transaction. This could lead to database corruption.
 */
 #ifdef SQLITE_MAX_PAGE_SIZE
-# undef SQLITE_MAX_PAGE_SIZE
+#undef SQLITE_MAX_PAGE_SIZE
 #endif
 #define SQLITE_MAX_PAGE_SIZE 65536
-
 
 /*
 ** The default size of a database page.
 */
 #ifndef SQLITE_DEFAULT_PAGE_SIZE
-# define SQLITE_DEFAULT_PAGE_SIZE 4096
+#define SQLITE_DEFAULT_PAGE_SIZE 4096
 #endif
-#if SQLITE_DEFAULT_PAGE_SIZE>SQLITE_MAX_PAGE_SIZE
-# undef SQLITE_DEFAULT_PAGE_SIZE
-# define SQLITE_DEFAULT_PAGE_SIZE SQLITE_MAX_PAGE_SIZE
+#if SQLITE_DEFAULT_PAGE_SIZE > SQLITE_MAX_PAGE_SIZE
+#undef SQLITE_DEFAULT_PAGE_SIZE
+#define SQLITE_DEFAULT_PAGE_SIZE SQLITE_MAX_PAGE_SIZE
 #endif
 
 /*
@@ -171,13 +169,12 @@
 ** SQLite will choose on its own.
 */
 #ifndef SQLITE_MAX_DEFAULT_PAGE_SIZE
-# define SQLITE_MAX_DEFAULT_PAGE_SIZE 8192
+#define SQLITE_MAX_DEFAULT_PAGE_SIZE 8192
 #endif
-#if SQLITE_MAX_DEFAULT_PAGE_SIZE>SQLITE_MAX_PAGE_SIZE
-# undef SQLITE_MAX_DEFAULT_PAGE_SIZE
-# define SQLITE_MAX_DEFAULT_PAGE_SIZE SQLITE_MAX_PAGE_SIZE
+#if SQLITE_MAX_DEFAULT_PAGE_SIZE > SQLITE_MAX_PAGE_SIZE
+#undef SQLITE_MAX_DEFAULT_PAGE_SIZE
+#define SQLITE_MAX_DEFAULT_PAGE_SIZE SQLITE_MAX_PAGE_SIZE
 #endif
-
 
 /*
 ** Maximum number of pages in one database file.
@@ -187,7 +184,7 @@
 ** max_page_count macro.
 */
 #ifndef SQLITE_MAX_PAGE_COUNT
-# define SQLITE_MAX_PAGE_COUNT 1073741823
+#define SQLITE_MAX_PAGE_COUNT 1073741823
 #endif
 
 /*
@@ -195,7 +192,7 @@
 ** operator.
 */
 #ifndef SQLITE_MAX_LIKE_PATTERN_LENGTH
-# define SQLITE_MAX_LIKE_PATTERN_LENGTH 50000
+#define SQLITE_MAX_LIKE_PATTERN_LENGTH 50000
 #endif
 
 /*
@@ -206,5 +203,5 @@
 ** may be executed.
 */
 #ifndef SQLITE_MAX_TRIGGER_DEPTH
-# define SQLITE_MAX_TRIGGER_DEPTH 1000
+#define SQLITE_MAX_TRIGGER_DEPTH 1000
 #endif

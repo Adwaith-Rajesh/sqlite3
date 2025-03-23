@@ -22,63 +22,63 @@
 ** processor and returns that value.  This can be used for high-res
 ** profiling.
 */
-#if !defined(__STRICT_ANSI__) && \
-    (defined(__GNUC__) || defined(_MSC_VER)) && \
+#if !defined(__STRICT_ANSI__) && (defined(__GNUC__) || defined(_MSC_VER)) && \
     (defined(i386) || defined(__i386__) || defined(_M_IX86))
 
-  #if defined(__GNUC__)
+#if defined(__GNUC__)
 
-  __inline__ sqlite_uint64 sqlite3Hwtime(void){
-     unsigned int lo, hi;
-     __asm__ __volatile__ ("rdtsc" : "=a" (lo), "=d" (hi));
-     return (sqlite_uint64)hi << 32 | lo;
-  }
+__inline__ sqlite_uint64 sqlite3Hwtime(void) {
+    unsigned int lo, hi;
+    __asm__ __volatile__("rdtsc" : "=a"(lo), "=d"(hi));
+    return (sqlite_uint64)hi << 32 | lo;
+}
 
-  #elif defined(_MSC_VER)
+#elif defined(_MSC_VER)
 
-  __declspec(naked) __inline sqlite_uint64 __cdecl sqlite3Hwtime(void){
-     __asm {
+__declspec(naked) __inline sqlite_uint64 __cdecl sqlite3Hwtime(void) {
+    __asm {
         rdtsc
         ret       ; return value at EDX:EAX
-     }
-  }
+    }
+}
 
-  #endif
+#endif
 
 #elif !defined(__STRICT_ANSI__) && (defined(__GNUC__) && defined(__x86_64__))
 
-  __inline__ sqlite_uint64 sqlite3Hwtime(void){
-     unsigned int lo, hi;
-     __asm__ __volatile__ ("rdtsc" : "=a" (lo), "=d" (hi));
-     return (sqlite_uint64)hi << 32 | lo;
-  }
- 
+__inline__ sqlite_uint64 sqlite3Hwtime(void) {
+    unsigned int lo, hi;
+    __asm__ __volatile__("rdtsc" : "=a"(lo), "=d"(hi));
+    return (sqlite_uint64)hi << 32 | lo;
+}
+
 #elif !defined(__STRICT_ANSI__) && (defined(__GNUC__) && defined(__ppc__))
 
-  __inline__ sqlite_uint64 sqlite3Hwtime(void){
-      unsigned long long retval;
-      unsigned long junk;
-      __asm__ __volatile__ ("\n\
+__inline__ sqlite_uint64 sqlite3Hwtime(void) {
+    unsigned long long retval;
+    unsigned long junk;
+    __asm__ __volatile__(
+        "\n\
           1:      mftbu   %1\n\
                   mftb    %L0\n\
                   mftbu   %0\n\
                   cmpw    %0,%1\n\
                   bne     1b"
-                  : "=r" (retval), "=r" (junk));
-      return retval;
-  }
+        : "=r"(retval), "=r"(junk));
+    return retval;
+}
 
 #else
 
-  /*
-  ** asm() is needed for hardware timing support.  Without asm(),
-  ** disable the sqlite3Hwtime() routine.
-  **
-  ** sqlite3Hwtime() is only used for some obscure debugging
-  ** and analysis configurations, not in any deliverable, so this
-  ** should not be a great loss.
-  */
-  sqlite_uint64 sqlite3Hwtime(void){ return ((sqlite_uint64)0); }
+/*
+** asm() is needed for hardware timing support.  Without asm(),
+** disable the sqlite3Hwtime() routine.
+**
+** sqlite3Hwtime() is only used for some obscure debugging
+** and analysis configurations, not in any deliverable, so this
+** should not be a great loss.
+*/
+sqlite_uint64 sqlite3Hwtime(void) { return ((sqlite_uint64)0); }
 
 #endif
 

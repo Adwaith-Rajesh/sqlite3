@@ -109,11 +109,8 @@ typedef struct sqlite3_intarray sqlite3_intarray;
 ** explicitly by the application, the virtual table will be dropped implicitly
 ** by the system when the database connection is closed.
 */
-SQLITE_API int sqlite3_intarray_create(
-  sqlite3 *db,
-  const char *zName,
-  sqlite3_intarray **ppReturn
-);
+SQLITE_API int sqlite3_intarray_create(sqlite3 *db, const char *zName,
+                                       sqlite3_intarray **ppReturn);
 
 /*
 ** Bind a new array array of integers to a specific intarray object.
@@ -123,13 +120,13 @@ SQLITE_API int sqlite3_intarray_create(
 ** array does change or is deallocated undefined behavior will result.
 */
 SQLITE_API int sqlite3_intarray_bind(
-  sqlite3_intarray *pIntArray,   /* The intarray object to bind to */
-  int nElements,                 /* Number of elements in the intarray */
-  sqlite3_int64 *aElements,      /* Content of the intarray */
-  void (*xFree)(void*)           /* How to dispose of the intarray when done */
+    sqlite3_intarray *pIntArray, /* The intarray object to bind to */
+    int nElements,               /* Number of elements in the intarray */
+    sqlite3_int64 *aElements,    /* Content of the intarray */
+    void (*xFree)(void *)        /* How to dispose of the intarray when done */
 );
 
 #ifdef __cplusplus
-}  /* End of the 'extern "C"' block */
+} /* End of the 'extern "C"' block */
 #endif
 #endif /* SQLITE_INTARRAY_H */
